@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  # =========================================================
+  # 1. FRONTEND: React 19 + Three.js (Nginx Reverse Proxy)
+  # =========================================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: portfolio-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - portfolio-net
+
+  # =========================================================
+  # 2. BACKEND: Spring Boot 3.3 REST & WebSocket API
+  # =========================================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: portfolio-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/portfolio_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=portfolio_user
+      - SPRING_DATASOURCE_PASSWORD=portfolio_pass
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - portfolio-net
+
+  # =========================================================
+  # 3. DATABASE: MySQL 8.0 Enterprise Relational Store
+  # =========================================================
+  mysql:
+    image: mysql:8.0
+    container_name: portfolio-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: portfolio_db
+      MYSQL_USER: portfolio_user
+      MYSQL_PASSWORD: portfolio_pass
+      MYSQL_ROOT_PASSWORD: portfolio_root_secret
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - portfolio-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "portfolio_user", "-pportfolio_pass"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+networks:
+  portfolio-net:
+    driver: bridge
+
+volumes:
+  mysql-data:
+    driver: local
