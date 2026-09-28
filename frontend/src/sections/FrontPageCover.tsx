@@ -13,14 +13,11 @@ import {
   Sparkles,
   Mail,
   ShieldCheck,
-  Eye,
   Sliders,
   Globe,
   Palette,
   Image as ImageIcon,
   Upload,
-  Maximize2,
-  Minimize2
 } from 'lucide-react';
 import { GithubIcon } from '../components/SocialIcons';
 import { PERSONAL_INFO } from '../data/portfolioData';
@@ -31,6 +28,7 @@ interface FrontPageCoverProps {
   onOpenResume: () => void;
   onOpenAdmin: () => void;
   onOpenTerminal: () => void;
+  hasUnlockedOnce?: boolean;
 }
 
 interface MultilingualTitle {
@@ -320,12 +318,11 @@ export const FrontPageCover: React.FC<FrontPageCoverProps> = ({
   onOpenResume,
   onOpenAdmin,
   onOpenTerminal,
+  hasUnlockedOnce = false,
 }) => {
   const [currentLangIndex, setCurrentLangIndex] = useState(0);
   const [textMode, setTextMode] = useState<'transparent' | 'translucent' | 'solid'>('transparent');
   const [strokeWidth, setStrokeWidth] = useState<'1.5px' | '2px' | '2.5px'>('2px');
-  const [isPhotoMaximized, setIsPhotoMaximized] = useState(false);
-  const [isGrayscale, setIsGrayscale] = useState(false);
 
   // Pattern 2: Swipe Up Touch & Wheel Gesture State
   const [touchStartY, setTouchStartY] = useState<number | null>(null);
@@ -538,17 +535,19 @@ export const FrontPageCover: React.FC<FrontPageCoverProps> = ({
     onUnlock3D(targetSection);
   };
 
-  // Touch Swipe Up Listener for Mobile
+  // Touch Swipe Up Listener for Mobile & Tablets (Supports 1 finger and 2 fingers)
   const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchStartY(e.touches[0].clientY);
+    if (e.touches.length > 0) {
+      setTouchStartY(e.touches[0].clientY);
+    }
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (touchStartY === null) return;
     const touchEndY = e.changedTouches[0].clientY;
     const deltaY = touchStartY - touchEndY;
-    // Upward swipe threshold: 45px
-    if (deltaY > 45) {
+    // Upward swipe threshold: 30px (responsive for 1 or 2 fingers)
+    if (deltaY > 20) {
       handleUnlock();
     }
     setTouchStartY(null);
@@ -556,7 +555,7 @@ export const FrontPageCover: React.FC<FrontPageCoverProps> = ({
 
   // Mouse Wheel / Trackpad Scroll Down Listener for Desktop
   const handleWheel = (e: React.WheelEvent) => {
-    if (e.deltaY > 35) {
+    if (e.deltaY > 18) {
       handleUnlock();
     }
   };
@@ -861,69 +860,13 @@ export const FrontPageCover: React.FC<FrontPageCoverProps> = ({
               </AnimatePresence>
             </div>
 
-            {/* Photo Filter Toggle (B&W / Color) */}
-            <button
-              onClick={() => {
-                soundManager.playClick();
-                setIsGrayscale((prev) => !prev);
-              }}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/40 hover:bg-black/60 text-[10px] font-mono text-white/80 hover:text-white border border-white/15 transition-all cursor-pointer shadow-md"
-              title="Toggle Black & White portrait filter"
-            >
-              <Eye className="w-3 h-3 text-cyan-300" />
-              <span>{isGrayscale ? 'PHOTO: B&W' : 'PHOTO: COLOR'}</span>
-            </button>
+            
           </div>
         </div>
       </header>
 
       {/* CENTER STAGE */}
-      <div className="relative flex-1 w-full flex flex-col items-center justify-center overflow-hidden px-4">
-        {/* User's Exact Clean Original Photo (Layer z-20) */}
-        <div className="relative z-20 flex items-center justify-center transition-all duration-500">
-          <div
-            className="relative rounded-3xl overflow-hidden transition-all duration-500 group"
-            style={{
-              boxShadow: currentTheme.photoGlow,
-              border: `1.5px solid ${currentTheme.photoBorderColor}`,
-            }}
-          >
-            <img
-              src="/aditya-photo.jpg"
-              srcSet="/aditya-photo.jpg 1x, /aditya-photo-hd.jpg 2x"
-              alt="Aditya Kumar"
-              className={`w-auto aspect-square object-cover object-top transition-all duration-500 ${
-                isPhotoMaximized
-                  ? 'max-h-[58vh] sm:max-h-[64vh] max-w-[85vw]'
-                  : 'max-h-[48vh] sm:max-h-[54vh] max-w-[78vw]'
-              } ${
-                isGrayscale
-                  ? 'grayscale contrast-[1.08] brightness-[1.02]'
-                  : 'contrast-[1.04] brightness-[1.02]'
-              }`}
-            />
-
-            {/* Subtle luxury edge reflection */}
-            <div className="absolute inset-0 ring-1 ring-inset ring-white/20 pointer-events-none rounded-3xl" />
-
-            {/* Quick Fullscreen / Maximize Toggle Badge on Photo */}
-            <button
-              onClick={() => {
-                soundManager.playClick();
-                setIsPhotoMaximized((prev) => !prev);
-              }}
-              className="absolute bottom-3 right-3 p-1.5 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md border border-white/20 text-white/80 hover:text-white transition-all cursor-pointer opacity-0 group-hover:opacity-100 shadow-lg"
-              title={isPhotoMaximized ? 'Restore standard photo view' : 'Expand photo full screen'}
-            >
-              {isPhotoMaximized ? (
-                <Minimize2 className="w-3.5 h-3.5 text-cyan-300" />
-              ) : (
-                <Maximize2 className="w-3.5 h-3.5 text-cyan-300" />
-              )}
-            </button>
-          </div>
-        </div>
-
+      <div className="relative flex-1 w-full flex flex-col items-center justify-center overflow-hidden px-4 py-8">
         {/* CREATIVE TYPOGRAPHY: "BIHARI ENGINEER" — UNDER THE FRAME & PERFECTLY FIT IN VIEWPORT */}
         <div className="relative z-30 mt-3 sm:mt-4 flex justify-center items-center pointer-events-none select-none px-4 w-full max-w-[92vw]">
           <AnimatePresence mode="wait">
@@ -978,45 +921,67 @@ export const FrontPageCover: React.FC<FrontPageCoverProps> = ({
       <footer className="relative z-40 w-full px-6 pb-6 sm:pb-8 flex flex-col items-center gap-3">
         {/* PATTERN 2: SWIPE UP / CURTAIN LIFT TO ENTER 3D SPACE */}
         <div className="relative flex flex-col items-center">
-          <motion.div
-            drag="y"
-            dragConstraints={{ top: -120, bottom: 0 }}
-            dragElastic={0.3}
-            onDragEnd={(_, info) => {
-              if (info.offset.y < -40 || info.velocity.y < -200) {
-                handleUnlock();
-              }
-            }}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="group cursor-pointer select-none bg-[#121418]/90 hover:bg-[#121418] backdrop-blur-2xl border border-white/20 hover:border-cyan-400/60 rounded-full px-5 py-2.5 flex items-center gap-3 shadow-[0_10px_35px_rgba(0,0,0,0.8)] transition-all touch-none relative"
-            onClick={() => handleUnlock()}
-            title="Swipe up or click to enter 3D Space"
-          >
-            {/* Lock Icon */}
-            <div className="w-6 h-6 rounded-full bg-white text-black flex items-center justify-center text-xs font-bold shadow-md">
-              <Lock className="w-3.5 h-3.5 text-black group-hover:hidden" />
-              <Unlock className="w-3.5 h-3.5 text-black hidden group-hover:block" />
-            </div>
+          {hasUnlockedOnce ? (
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => handleUnlock()}
+              className="group cursor-pointer select-none bg-gradient-to-r from-cyan-500/25 via-indigo-600/30 to-cyan-500/25 hover:from-cyan-500/40 hover:to-indigo-600/50 backdrop-blur-2xl border border-cyan-400/60 rounded-full px-6 py-2.5 flex items-center gap-3 shadow-[0_10px_35px_rgba(6,182,212,0.35)] transition-all animate-pulse"
+              title="Click to jump directly back to 3D Space (No sliding required)"
+            >
+              <div className="w-6 h-6 rounded-full bg-cyan-400 text-black flex items-center justify-center text-xs font-bold shadow-md">
+                <Unlock className="w-3.5 h-3.5 text-black" />
+              </div>
+              <div className="flex items-center gap-2 text-xs font-mono tracking-widest text-cyan-200 uppercase font-bold">
+                <span>ENTER 3D SPACE</span>
+                <span className="text-cyan-400">→</span>
+              </div>
+              <div className="hidden sm:flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-cyan-500/20 text-[10px] font-mono text-cyan-300 border border-cyan-500/30">
+                <Sparkles className="w-3 h-3" />
+                <span>ACTIVE</span>
+              </div>
+            </motion.button>
+          ) : (
+            <motion.div
+              drag="y"
+              dragConstraints={{ top: -120, bottom: 0 }}
+              dragElastic={0.3}
+              onDragEnd={(_, info) => {
+                if (info.offset.y < -40 || info.velocity.y < -200) {
+                  handleUnlock();
+                }
+              }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="group cursor-pointer select-none bg-[#121418]/90 hover:bg-[#121418] backdrop-blur-2xl border border-white/20 hover:border-cyan-400/60 rounded-full px-5 py-2.5 flex items-center gap-3 shadow-[0_10px_35px_rgba(0,0,0,0.8)] transition-all touch-none relative"
+              onClick={() => handleUnlock()}
+              title="Swipe up or click to enter 3D Space"
+            >
+              {/* Lock Icon */}
+              <div className="w-6 h-6 rounded-full bg-white text-black flex items-center justify-center text-xs font-bold shadow-md">
+                <Lock className="w-3.5 h-3.5 text-black group-hover:hidden" />
+                <Unlock className="w-3.5 h-3.5 text-black hidden group-hover:block" />
+              </div>
 
-            {/* Upward Chevron + English Only Text */}
-            <div className="flex items-center gap-2 text-xs font-mono tracking-widest text-slate-100 uppercase font-semibold">
-              <motion.div
-                animate={{ y: [0, -3.5, 0] }}
-                transition={{ repeat: Infinity, duration: 1.4, ease: 'easeInOut' }}
-                className="flex items-center"
-              >
-                <ChevronUp className="w-4 h-4 text-cyan-400" />
-              </motion.div>
-              <span>SWIPE UP / CLICK TO ENTER</span>
-            </div>
+              {/* Upward Chevron + English Only Text */}
+              <div className="flex items-center gap-2 text-xs font-mono tracking-widest text-slate-100 uppercase font-semibold">
+                <motion.div
+                  animate={{ y: [0, -3.5, 0] }}
+                  transition={{ repeat: Infinity, duration: 1.4, ease: 'easeInOut' }}
+                  className="flex items-center"
+                >
+                  <ChevronUp className="w-4 h-4 text-cyan-400" />
+                </motion.div>
+                <span>SWIPE UP / CLICK TO ENTER</span>
+              </div>
 
-            {/* 3D World Badge */}
-            <div className="hidden sm:flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-cyan-500/20 text-[10px] font-mono text-cyan-300 border border-cyan-500/30">
-              <Sparkles className="w-3 h-3" />
-              <span>3D WORLD</span>
-            </div>
-          </motion.div>
+              {/* 3D World Badge */}
+              <div className="hidden sm:flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-cyan-500/20 text-[10px] font-mono text-cyan-300 border border-cyan-500/30">
+                <Sparkles className="w-3 h-3" />
+                <span>3D WORLD</span>
+              </div>
+            </motion.div>
+          )}
         </div>
 
         {/* FLOATING PILL DOCK WITH PROPER DEEP-LINKING & ANIMATED HOVER TOOLTIPS */}
@@ -1121,4 +1086,13 @@ export const FrontPageCover: React.FC<FrontPageCoverProps> = ({
           >
             <Mail className="w-4 h-4" />
             <span className="pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2 px-2.5 py-1 rounded-md bg-black/90 text-[10px] font-mono text-cyan-300 whitespace-nowrap border border-cyan-500/40 opacity-0 group-hover:opacity-100 transition-opacity shadow-xl z-50">
-          
+              Email: {PERSONAL_INFO.email}
+            </span>
+          </a>
+        </nav>
+      </footer>
+    </div>
+  );
+};
+
+export default FrontPageCover;

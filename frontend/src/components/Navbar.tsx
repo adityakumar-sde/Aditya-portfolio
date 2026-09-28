@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, ArrowUpRight, FileDown, ShieldCheck, ArrowLeft } from 'lucide-react';
+import { Menu, X, ArrowUpRight, FileDown, ShieldCheck, ArrowLeft, Terminal } from 'lucide-react';
 import { GithubIcon, LinkedinIcon } from './SocialIcons';
 import { PERSONAL_INFO } from '../data/portfolioData';
 import { SoundToggle } from './SoundToggle';
@@ -9,9 +9,10 @@ interface NavbarProps {
   onOpenAdmin: () => void;
   onOpenResume: () => void;
   onBackToCover?: () => void;
+  onOpenTerminal?: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onOpenAdmin, onOpenResume, onBackToCover }) => {
+export const Navbar: React.FC<NavbarProps> = ({ onOpenAdmin, onOpenResume, onBackToCover, onOpenTerminal }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -43,11 +44,14 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAdmin, onOpenResume, onBac
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-        {/* Brand / Logo */}
-        <a
-          href="#"
-          onClick={() => soundManager.playClick()}
-          className="flex items-center gap-2 group cursor-pointer"
+        {/* Brand / Logo — Click returns to Front Page Cover */}
+        <button
+          onClick={() => {
+            soundManager.playClick();
+            if (onBackToCover) onBackToCover();
+          }}
+          className="flex items-center gap-2 group cursor-pointer text-left bg-transparent border-none p-0"
+          title="Return to Front Page Cover"
         >
           <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-indigo-600 p-[1px] transition-transform group-hover:scale-105">
             <div className="w-full h-full bg-[#090b10] rounded-[7px] flex items-center justify-center font-display font-bold text-xs tracking-wider text-white">
@@ -57,7 +61,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAdmin, onOpenResume, onBac
           <span className="font-display font-extrabold text-base tracking-widest text-white group-hover:text-cyan-400 transition-colors">
             {PERSONAL_INFO.shortName}
           </span>
-        </a>
+        </button>
 
         {/* Desktop Center Links */}
         <nav className="hidden lg:flex items-center gap-8">
@@ -75,8 +79,35 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAdmin, onOpenResume, onBac
         </nav>
 
         {/* Desktop Right Actions */}
-        <div className="hidden lg:flex items-center gap-4">
-          {onBackToCover && (<button onClick={() => { soundManager.playClick(); onBackToCover(); }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-400/30 text-xs font-mono text-cyan-300 transition-all cursor-pointer" title="Return to Editorial Cover"><ArrowLeft className="w-3.5 h-3.5" /><span>COVER</span></button>)}<SoundToggle />
+        <div className="hidden lg:flex items-center gap-3">
+          {onOpenTerminal && (
+            <button
+              onClick={() => {
+                soundManager.playClick();
+                onOpenTerminal();
+              }}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-400/30 text-xs font-mono text-cyan-300 transition-all cursor-pointer shadow-sm"
+              title="Open Developer Terminal (CLI)"
+            >
+              <Terminal className="w-3.5 h-3.5 text-cyan-400" />
+              <span>CLI</span>
+            </button>
+          )}
+
+          {onBackToCover && (
+            <button
+              onClick={() => {
+                soundManager.playClick();
+                onBackToCover();
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-400/30 text-xs font-mono text-cyan-300 transition-all cursor-pointer"
+              title="Return to Editorial Cover"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>FRONT PAGE</span>
+            </button>
+          )}
+          <SoundToggle />
 
           <button
             onClick={() => {
@@ -131,7 +162,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAdmin, onOpenResume, onBac
 
         {/* Mobile Menu Button */}
         <div className="flex items-center gap-3 lg:hidden">
-          {onBackToCover && (<button onClick={() => { soundManager.playClick(); onBackToCover(); }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-400/30 text-xs font-mono text-cyan-300 transition-all cursor-pointer" title="Return to Editorial Cover"><ArrowLeft className="w-3.5 h-3.5" /><span>COVER</span></button>)}<SoundToggle />
+          {onBackToCover && (<button onClick={() => { soundManager.playClick(); onBackToCover(); }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-400/30 text-xs font-mono text-cyan-300 transition-all cursor-pointer" title="Return to Editorial Cover"><ArrowLeft className="w-3.5 h-3.5" /><span>FRONT PAGE</span></button>)}<SoundToggle />
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="p-2 rounded-md bg-white/5 border border-white/10 text-slate-300 hover:text-white cursor-pointer"
@@ -145,6 +176,19 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAdmin, onOpenResume, onBac
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
         <div className="lg:hidden fixed inset-x-0 top-[60px] bg-[#090b10]/95 backdrop-blur-2xl border-b border-white/10 p-6 flex flex-col gap-5 z-50">
+          {onBackToCover && (
+            <button
+              onClick={() => {
+                handleLinkClick();
+                onBackToCover();
+              }}
+              className="w-full py-2.5 px-4 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-400/40 text-xs font-mono text-cyan-300 flex items-center justify-center gap-2 transition-all cursor-pointer font-bold shadow-md"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>RETURN TO FRONT PAGE</span>
+            </button>
+          )}
+
           <div className="flex flex-col gap-3">
             {navLinks.map((link) => (
               <a

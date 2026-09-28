@@ -769,4 +769,72 @@ export const DeveloperTerminalModal: React.FC<DeveloperTerminalModalProps> = ({
           <div ref={bottomRef} />
         </div>
 
-        {/* Active Command Input
+        {/* Active Command Input Row */}
+        <div className="p-3 bg-[#0d1117] border-t border-cyan-500/20 flex items-center gap-2">
+          <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-bold shrink-0">
+            <span>aditya@terminal:~$</span>
+          </div>
+          <input
+            ref={inputRef}
+            type="text"
+            value={inputVal}
+            onChange={(e) => setInputVal(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Type 'help' for commands, Tab for autocomplete..."
+            className="flex-1 bg-transparent border-none outline-none text-xs sm:text-sm text-cyan-200 placeholder:text-slate-600 font-mono"
+            autoFocus
+            spellCheck={false}
+            autoCapitalize="off"
+            autoComplete="off"
+          />
+        </div>
+
+        {/* Quick Command Ribbon Footer */}
+        <div className="px-4 py-2 bg-[#090c10] border-t border-white/5 flex items-center justify-between text-[11px] text-slate-500 overflow-x-auto gap-2">
+          <div className="flex items-center gap-3 shrink-0">
+            <span>Shortcuts:</span>
+            <button
+              onClick={() => handleCommand('help')}
+              className="text-cyan-400/80 hover:text-cyan-300 hover:underline cursor-pointer"
+            >
+              help
+            </button>
+            <button
+              onClick={() => handleCommand('status')}
+              className="text-cyan-400/80 hover:text-cyan-300 hover:underline cursor-pointer"
+            >
+              status
+            </button>
+            <button
+              onClick={() => handleCommand('health')}
+              className="text-cyan-400/80 hover:text-cyan-300 hover:underline cursor-pointer"
+            >
+              health
+            </button>
+            <button
+              onClick={() => handleCommand('cicd')}
+              className="text-cyan-400/80 hover:text-cyan-300 hover:underline cursor-pointer"
+            >
+              cicd
+            </button>
+            <button
+              onClick={() => handleCommand('errors')}
+              className="text-amber-400/80 hover:text-amber-300 hover:underline cursor-pointer"
+            >
+              errors
+            </button>
+            <button
+              onClick={() => handleCommand('messages')}
+              className="text-emerald-400/80 hover:text-emerald-300 hover:underline cursor-pointer"
+            >
+              messages
+            </button>
+          </div>
+          <div className="text-[10px] text-slate-600 shrink-0 hidden sm:block">
+            Press <kbd className="px-1 py-0.5 rounded bg-white/10 text-slate-300 font-mono">`</kbd> or <kbd className="px-1 py-0.5 rounded bg-white/10 text-slate-300 font-mono">Ctrl+Shift+T</kbd> to toggle
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};

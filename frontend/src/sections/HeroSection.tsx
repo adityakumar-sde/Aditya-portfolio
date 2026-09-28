@@ -7,9 +7,14 @@ import { soundManager } from '../services/audio';
 interface HeroSectionProps {
   onOpenResume: () => void;
   onSelectSystem?: (systemId: string) => void;
+  customConfig?: {
+    title: string;
+    tagline: string;
+    statusText: string;
+  };
 }
 
-export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenResume, onSelectSystem }) => {
+export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenResume, onSelectSystem, customConfig }) => {
   const [activeSystem, setActiveSystem] = useState<string | null>(null);
 
   const handleSystemClick = (sysId: string) => {
@@ -21,7 +26,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenResume, onSelect
   };
 
   return (
-    <section className="relative min-h-screen w-full flex items-center justify-center pt-24 pb-16 px-6 overflow-hidden bg-[#060709]">
+    <section id="hero" className="relative min-h-screen w-full flex items-center justify-center pt-24 pb-16 px-6 overflow-hidden bg-[#060709]">
       <div className="absolute inset-0 z-0">
         <HeroCanvas onSelectSystem={handleSystemClick} activeSystemId={activeSystem} />
       </div>
@@ -31,7 +36,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenResume, onSelect
           <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
             <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
             <span className="text-[11px] font-mono tracking-widest text-slate-300 uppercase">
-              {PERSONAL_INFO.location} · AVAILABLE FOR IMPACT
+              {customConfig?.statusText || `${PERSONAL_INFO.location} · AVAILABLE FOR IMPACT`}
             </span>
           </div>
 
@@ -45,13 +50,13 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenResume, onSelect
             <div className="flex items-center gap-3 pt-1">
               <span className="h-[2px] w-8 bg-cyan-400" />
               <p className="text-sm md:text-lg font-mono tracking-[0.25em] text-cyan-400 uppercase font-semibold">
-                {PERSONAL_INFO.title}
+                {customConfig?.title || PERSONAL_INFO.title}
               </p>
             </div>
           </div>
 
           <p className="text-base sm:text-lg md:text-xl text-slate-300 max-w-2xl font-body leading-relaxed font-light">
-            {PERSONAL_INFO.tagline}
+            {customConfig?.tagline || PERSONAL_INFO.tagline}
           </p>
 
           <div className="pt-1">

@@ -1,0 +1,68 @@
+# ==============================================================================
+# Git Ignore Configuration - Aditya Portfolio Monorepo
+# ==============================================================================
+
+# Environment Variables & Secrets (CRITICAL: NEVER COMMIT REAL SECRETS)
+.env
+.env.*
+*.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+!.env.example
+!*.example
+
+# Node / Frontend Build & Dependencies
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+dist-ssr/
+frontend/dist-ssr/
+.eslintcache
+.stylelintcache
+
+# Java / Spring Boot Build & Dependencies
+backend/target/
+target/
+*.class
+*.jar
+*.war
+*.ear
+.mvn/wrapper/maven-wrapper.jar
+
+# Logs, Diagnostics & Crash Dumps
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Database & Docker Local Persistence
+mysql-data/
+.docker/
+*.pid
+*.seed
+
+# IDE, Editor & OS Files
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.swo
+*.swn
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary files & Scratch
+scratch/
+tmp/
+temp/

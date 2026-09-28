@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Navbar } from './components/Navbar';
-import { CustomCursor } from './components/CustomCursor';
 import { AiAssistantModal } from './components/AiAssistantModal';
 import { AdminModal } from './components/AdminModal';
 import { ResumeModal } from './components/ResumeModal';
+import { DeveloperTerminalModal, type PortfolioCustomConfig } from './components/DeveloperTerminalModal';
 import { PersonalMusicPlayer } from './components/PersonalMusicPlayer';
 import { MusicProvider } from './context/MusicContext';
 import { FrontPageCover } from './sections/FrontPageCover';
@@ -20,6 +20,14 @@ import { AboutSection } from './sections/AboutSection';
 import { EngineeringPhilosophySection } from './sections/EngineeringPhilosophySection';
 import { ContactSection } from './sections/ContactSection';
 import { FooterSignature } from './sections/FooterSignature';
+import { PERSONAL_INFO } from './data/portfolioData';
+import { soundManager } from './services/audio';
+
+const DEFAULT_CONFIG: PortfolioCustomConfig = {
+  title: PERSONAL_INFO.title,
+  tagline: PERSONAL_INFO.tagline,
+  statusText: `${PERSONAL_INFO.location} · AVAILABLE FOR IMPACT`,
+};
 
 export const App: React.FC = () => {
   // viewMode controls whether user is on the Editorial Front Page or the 3D Engineering Space
@@ -27,6 +35,120 @@ export const App: React.FC = () => {
   const [selectedSystemId, setSelectedSystemId] = useState<string | null>(null);
   const [isAdminOpen, setIsAdminOpen] = useState<boolean>(false);
   const [isResumeOpen, setIsResumeOpen] = useState<boolean>(false);
+  const [isTerminalOpen, setIsTerminalOpen] = useState<boolean>(false);
+  const [hasUnlockedOnce, setHasUnlockedOnce] = useState<boolean>(false);
+
+  // Live modifiable config state from Developer Terminal (persisted in localStorage)
+  const [portfolioConfig, setPortfolioConfig] = useState<PortfolioCustomConfig>(() => {
+    try {
+      const saved = localStorage.getItem('aditya_portfolio_custom_config');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      console.warn('Failed to load portfolio custom config', e);
+    }
+    return DEFAULT_CONFIG;
+  });
+
+  const handleUpdateConfig = (key: keyof PortfolioCustomConfig, value: string) => {
+    setPortfolioConfig((prev) => {
+      const next = { ...prev, [key]: value };
+      try {
+        localStorage.setItem('aditya_portfolio_custom_config', JSON.stringify(next));
+      } catch (e) {
+        console.warn('Failed to persist custom config', e);
+      }
+      return next;
+    });
+  };
+
+  const handleResetConfig = () => {
+    setPortfolioConfig(DEFAULT_CONFIG);
+    try {
+      localStorage.removeItem('aditya_portfolio_custom_config');
+    } catch (e) {
+      console.warn('Failed to clear custom config', e);
+    }
+  };
+
+  const handleNavigateSection = (sectionId: string) => {
+    const cleanId = sectionId.replace('#', '').toLowerCase();
+    if (cleanId === 'cover' || cleanId === 'home') {
+      setViewMode('cover');
+      return;
+    }
+    setViewMode('3d');
+    setTimeout(() => {
+      const el = document.getElementById(cleanId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 150);
+  };
+
+  // Global Keyboard Shortcut: Press ` (tilde) or Ctrl+Shift+T to open Terminal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        (e.key === '`' && !['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName)) ||
+        (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 't')
+      ) {
+        e.preventDefault();
+        setIsTerminalOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  // Two-Finger Trackpad / Wheel listener & Touch gesture to return to Front Page Cover
+  useEffect(() => {
+    if (viewMode !== '3d') return;
+
+    let touchStartY = 0;
+    let touchFingers = 0;
+
+    // Trackpad / Mouse Wheel: When user is at the top of the 3D page (scrollY <= 10)
+    // and scrolls up with two fingers (negative deltaY)
+    const handleWheel = (e: WheelEvent) => {
+      if (window.scrollY <= 15 && e.deltaY < -18) {
+        soundManager.playClick();
+        setViewMode('cover');
+      }
+    };
+
+    // Touch devices: Two-finger swipe down anywhere near top, or downward pull at scrollY === 0
+    const handleTouchStart = (e: TouchEvent) => {
+      touchFingers = e.touches.length;
+      if (e.touches.length >= 1 && window.scrollY <= 10) {
+        touchStartY = e.touches[0].clientY;
+      }
+    };
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (window.scrollY <= 10 && touchStartY > 0) {
+        const touchEndY = e.changedTouches[0].clientY;
+        const deltaY = touchEndY - touchStartY;
+        // Two fingers swipe down (> 25px) OR pull down at top (> 60px)
+        if ((touchFingers >= 2 && deltaY > 20) || deltaY > 45) {
+          soundManager.playClick();
+          setViewMode('cover');
+        }
+      }
+      touchStartY = 0;
+      touchFingers = 0;
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: true });
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+    return () => {
+      window.removeEventListener('wheel', handleWheel);
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [viewMode]);
+
 
   const rootClasses =
     viewMode === 'cover'
@@ -36,9 +158,7 @@ export const App: React.FC = () => {
   return (
     <MusicProvider>
       <div className={rootClasses}>
-        <CustomCursor />
-
-        {/* Global Personal Music Player (Positioned in first page bottom-left corner) */}
+        {/* Global Personal Music Player */}
         <PersonalMusicPlayer />
 
         <AnimatePresence mode="wait">
@@ -50,14 +170,25 @@ export const App: React.FC = () => {
               key="front-cover"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              exit={{ opacity: 0, y: -40, scale: 0.98 }}
-              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-              className="w-full h-screen overflow-hidden"
+              exit={{ opacity: 0, y: -25, scale: 0.99 }}
+              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              className="w-full h-screen overflow-hidden will-change-transform"
             >
               <FrontPageCover
-                onUnlock3D={() => setViewMode('3d')}
+                hasUnlockedOnce={hasUnlockedOnce}
+                onUnlock3D={(targetSection) => {
+                  setHasUnlockedOnce(true);
+                  setViewMode('3d');
+                  if (targetSection) {
+                    setTimeout(() => {
+                      const el = document.getElementById(targetSection);
+                      if (el) el.scrollIntoView({ behavior: 'smooth' });
+                    }, 200);
+                  }
+                }}
                 onOpenResume={() => setIsResumeOpen(true)}
                 onOpenAdmin={() => setIsAdminOpen(true)}
+                onOpenTerminal={() => setIsTerminalOpen(true)}
               />
             </motion.div>
           ) : (
@@ -66,17 +197,18 @@ export const App: React.FC = () => {
             /* ========================================================= */
             <motion.div
               key="3d-portfolio"
-              initial={{ opacity: 0, y: 50, scale: 1.02 }}
+              initial={{ opacity: 0, y: 25, scale: 1.01 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 30 }}
-              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-              className="relative w-full"
+              exit={{ opacity: 0, y: 25, scale: 0.99 }}
+              transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+              className="relative w-full will-change-transform"
             >
-              {/* Top Navbar with 'COVER' return toggle */}
+              {/* Top Navbar with 'COVER' return toggle & Terminal button */}
               <Navbar
                 onOpenAdmin={() => setIsAdminOpen(true)}
                 onOpenResume={() => setIsResumeOpen(true)}
                 onBackToCover={() => setViewMode('cover')}
+                onOpenTerminal={() => setIsTerminalOpen(true)}
               />
 
               {/* Core Architectural Sections */}
@@ -84,6 +216,7 @@ export const App: React.FC = () => {
                 <HeroSection
                   onOpenResume={() => setIsResumeOpen(true)}
                   onSelectSystem={(sysId) => setSelectedSystemId(sysId)}
+                  customConfig={portfolioConfig}
                 />
 
                 <EngineeringSystemsSection selectedSystemId={selectedSystemId} />
@@ -112,6 +245,8 @@ export const App: React.FC = () => {
 
               {/* Floating AI Assistant Chatbot */}
               <AiAssistantModal />
+
+              
             </motion.div>
           )}
         </AnimatePresence>
@@ -125,6 +260,17 @@ export const App: React.FC = () => {
         <ResumeModal
           isOpen={isResumeOpen}
           onClose={() => setIsResumeOpen(false)}
+        />
+
+        <DeveloperTerminalModal
+          isOpen={isTerminalOpen}
+          onClose={() => setIsTerminalOpen(false)}
+          config={portfolioConfig}
+          onUpdateConfig={handleUpdateConfig}
+          onResetConfig={handleResetConfig}
+          onNavigateSection={handleNavigateSection}
+          onOpenAdmin={() => setIsAdminOpen(true)}
+          onOpenResume={() => setIsResumeOpen(true)}
         />
       </div>
     </MusicProvider>
