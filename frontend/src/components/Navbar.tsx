@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, ArrowUpRight, FileDown, ShieldCheck, ArrowLeft, Terminal } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Menu, X, ArrowDownToLine, ShieldCheck } from 'lucide-react';
 import { GithubIcon, LinkedinIcon } from './SocialIcons';
 import { PERSONAL_INFO } from '../data/portfolioData';
-import { SoundToggle } from './SoundToggle';
 import { soundManager } from '../services/audio';
+import { useTheme } from '../context/ThemeContext';
 
 interface NavbarProps {
   onOpenAdmin: () => void;
@@ -12,240 +13,253 @@ interface NavbarProps {
   onOpenTerminal?: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onOpenAdmin, onOpenResume, onBackToCover, onOpenTerminal }) => {
+export const Navbar: React.FC<NavbarProps> = ({
+  onOpenAdmin,
+  onOpenResume,
+  onBackToCover,
+}) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('home');
+  const { theme, themeConfig, cycleTheme } = useTheme();
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 40);
+      setIsScrolled(window.scrollY > 30);
+
+      // Scrollspy: detect active section
+      const sections = [
+        { id: 'home', el: document.getElementById('hero') },
+        { id: 'about', el: document.getElementById('about') },
+        { id: 'projects', el: document.getElementById('work') },
+        { id: 'contacts', el: document.getElementById('contact') },
+      ];
+
+      const scrollPos = window.scrollY + 200;
+      for (let i = sections.length - 1; i >= 0; i--) {
+        const s = sections[i];
+        if (s.el && s.el.offsetTop <= scrollPos) {
+          setActiveTab(s.id);
+          break;
+        }
+      }
     };
-    window.addEventListener('scroll', handleScroll);
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const navLinks = [
-    { name: 'WORK', href: '#work' },
-    { name: 'ENGINEERING', href: '#engineering' },
-    { name: 'EXPERIENCE', href: '#experience' },
-    { name: 'ABOUT', href: '#about' },
-    { name: 'CONTACT', href: '#contact' },
+    { id: 'home', name: 'Home', href: '#hero' },
+    { id: 'about', name: 'About', href: '#about' },
+    { id: 'projects', name: 'Projects', href: '#work' },
+    { id: 'contacts', name: 'Contacts', href: '#contact' },
   ];
 
-  const handleLinkClick = () => {
+  const handleLinkClick = (id: string, href: string) => {
     soundManager.playClick();
+    setActiveTab(id);
     setMobileMenuOpen(false);
+
+    const targetEl = document.querySelector(href);
+    if (targetEl) {
+      targetEl.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
-        isScrolled ? 'glass-nav py-3.5 shadow-2xl shadow-black/40' : 'bg-transparent py-5'
+        isScrolled
+          ? 'bg-[#0a0d14]/90 backdrop-blur-2xl py-3 border-b border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.8)]'
+          : 'bg-transparent py-5'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-        {/* Brand / Logo — Click returns to Front Page Cover */}
-        <button
-          onClick={() => {
-            soundManager.playClick();
-            if (onBackToCover) onBackToCover();
-          }}
-          className="flex items-center gap-2 group cursor-pointer text-left bg-transparent border-none p-0"
-          title="Return to Front Page Cover"
-        >
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-indigo-600 p-[1px] transition-transform group-hover:scale-105">
-            <div className="w-full h-full bg-[#090b10] rounded-[7px] flex items-center justify-center font-display font-bold text-xs tracking-wider text-white">
-              AK
+      <div className="max-w-6xl mx-auto px-6 sm:px-10 flex items-center justify-between">
+        {/* Left Side: Brand Logo & Click-to-Cycle Atmosphere Button (No dropdown) */}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => {
+              soundManager.playClick();
+              if (onBackToCover) onBackToCover();
+            }}
+            className="flex items-center gap-1.5 group cursor-pointer bg-transparent border-none p-0"
+            title="Return to Front Page Cover"
+          >
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 p-[1px] transition-transform group-hover:scale-105">
+              <div className="w-full h-full bg-[#0a0d14] rounded-[11px] flex items-center justify-center font-sans font-bold text-xs tracking-wider text-white">
+                AK
+              </div>
             </div>
-          </div>
-          <span className="font-display font-extrabold text-base tracking-widest text-white group-hover:text-cyan-400 transition-colors">
-            {PERSONAL_INFO.shortName}
-          </span>
-        </button>
+            <span className="font-sans font-bold text-sm tracking-tight text-white group-hover:text-cyan-400 transition-colors hidden sm:inline">
+              Aditya
+            </span>
+          </button>
 
-        {/* Desktop Center Links */}
-        <nav className="hidden lg:flex items-center gap-8">
-          {navLinks.map((link) => (
-            <a
-              key={link.name}
-              href={link.href}
-              onClick={() => soundManager.playClick()}
-              className="text-xs font-mono tracking-widest text-slate-400 hover:text-cyan-400 transition-colors py-1 relative group"
-            >
-              <span>{link.name}</span>
-              <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-cyan-400 transition-all duration-200 group-hover:w-full" />
-            </a>
-          ))}
+          {/* Click-Only Atmosphere Switcher Button */}
+          <button
+            onClick={() => {
+              soundManager.playClick();
+              cycleTheme();
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#131926]/90 border border-white/15 hover:border-cyan-500/40 text-slate-300 hover:text-white transition-all cursor-pointer shadow-sm hover:scale-105 active:scale-95 group"
+            title={`Current: ${themeConfig.name} · Click to cycle atmospheres`}
+            aria-label="Switch Background Atmosphere"
+          >
+            <span className="text-xs transition-transform group-hover:rotate-12">{themeConfig.icon}</span>
+            <span className="text-[10px] font-mono font-bold tracking-wider uppercase hidden sm:inline text-slate-300 group-hover:text-white">
+              {theme}
+            </span>
+          </button>
+        </div>
+
+        {/* Center: Dribbble Style Floating Capsule Nav with Animated Sliding Pill */}
+        <nav className="hidden md:flex items-center bg-[#111624]/90 backdrop-blur-2xl border border-white/15 rounded-full p-1 shadow-[0_10px_35px_rgba(0,0,0,0.7)] relative">
+          {navLinks.map((link) => {
+            const isActive = activeTab === link.id;
+            return (
+              <a
+                key={link.id}
+                href={link.href}
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleLinkClick(link.id, link.href);
+                }}
+                className={`relative px-4 py-1.5 rounded-full text-xs font-medium transition-colors z-10 cursor-pointer ${
+                  isActive ? 'text-white font-semibold' : 'text-slate-300 hover:text-white'
+                }`}
+              >
+                {isActive && (
+                  <motion.div
+                    layoutId="activeNavIndicator"
+                    className={`absolute inset-0 rounded-full bg-gradient-to-r ${themeConfig.navActiveGradient} shadow-[0_0_16px_rgba(56,189,248,0.4)] -z-10`}
+                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                  />
+                )}
+                <span>{link.name}</span>
+              </a>
+            );
+          })}
         </nav>
 
-        {/* Desktop Right Actions */}
-        <div className="hidden lg:flex items-center gap-3">
-          {onOpenTerminal && (
-            <button
-              onClick={() => {
-                soundManager.playClick();
-                onOpenTerminal();
-              }}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-400/30 text-xs font-mono text-cyan-300 transition-all cursor-pointer shadow-sm"
-              title="Open Developer Terminal (CLI)"
-            >
-              <Terminal className="w-3.5 h-3.5 text-cyan-400" />
-              <span>CLI</span>
-            </button>
-          )}
-
-          {onBackToCover && (
-            <button
-              onClick={() => {
-                soundManager.playClick();
-                onBackToCover();
-              }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-400/30 text-xs font-mono text-cyan-300 transition-all cursor-pointer"
-              title="Return to Editorial Cover"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              <span>FRONT PAGE</span>
-            </button>
-          )}
-          <SoundToggle />
-
+        {/* Right Side: Download CV & Admin Console */}
+        <div className="hidden sm:flex items-center gap-2">
           <button
             onClick={() => {
               soundManager.playClick();
               onOpenResume();
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-mono text-slate-200 hover:text-white transition-all cursor-pointer"
-            title="Download or Preview Resume"
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#161e2e]/90 hover:bg-[#1f2a3f] border border-white/15 text-xs font-medium text-slate-200 hover:text-white transition-all shadow-lg hover:shadow-cyan-500/20 hover:scale-[1.03] cursor-pointer"
+            title="Download CV"
           >
-            <FileDown className="w-3.5 h-3.5 text-cyan-400" />
-            <span>RESUME</span>
+            <span>Download CV</span>
+            <ArrowDownToLine className="w-3.5 h-3.5 text-cyan-400" />
           </button>
 
-          <a
-            href={PERSONAL_INFO.githubUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => soundManager.playClick()}
-            className="text-xs font-mono text-slate-400 hover:text-white flex items-center gap-1 transition-colors"
-            title="GitHub (Placeholder until verified URL supplied)"
-          >
-            <GithubIcon className="w-3.5 h-3.5" />
-            <span>GITHUB</span>
-            <ArrowUpRight className="w-3 h-3 text-slate-500" />
-          </a>
-
-          <a
-            href={PERSONAL_INFO.linkedinUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => soundManager.playClick()}
-            className="text-xs font-mono text-slate-400 hover:text-white flex items-center gap-1 transition-colors"
-            title="LinkedIn (Placeholder until verified URL supplied)"
-          >
-            <LinkedinIcon className="w-3.5 h-3.5" />
-            <span>LINKEDIN</span>
-            <ArrowUpRight className="w-3 h-3 text-slate-500" />
-          </a>
-
+          {/* Admin console button */}
           <button
             onClick={() => {
               soundManager.playClick();
               onOpenAdmin();
             }}
-            className="p-1.5 rounded-md text-slate-500 hover:text-cyan-400 hover:bg-white/5 transition-colors cursor-pointer"
-            title="Admin Console (/admin)"
-            aria-label="Open Admin Console"
+            className="p-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-slate-400 hover:text-cyan-400 transition-all cursor-pointer hover:scale-105"
+            title="Admin Console"
+            aria-label="Admin Console"
           >
-            <ShieldCheck className="w-4 h-4" />
+            <ShieldCheck className="w-3.5 h-3.5" />
           </button>
         </div>
 
-        {/* Mobile Menu Button */}
-        <div className="flex items-center gap-3 lg:hidden">
-          {onBackToCover && (<button onClick={() => { soundManager.playClick(); onBackToCover(); }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-400/30 text-xs font-mono text-cyan-300 transition-all cursor-pointer" title="Return to Editorial Cover"><ArrowLeft className="w-3.5 h-3.5" /><span>FRONT PAGE</span></button>)}<SoundToggle />
+        {/* Mobile Hamburger Button */}
+        <div className="flex items-center gap-2 md:hidden">
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 rounded-md bg-white/5 border border-white/10 text-slate-300 hover:text-white cursor-pointer"
+            className="p-2 rounded-full bg-[#131926] border border-white/10 text-slate-300 hover:text-white cursor-pointer"
             aria-label="Toggle Menu"
           >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
           </button>
         </div>
       </div>
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="lg:hidden fixed inset-x-0 top-[60px] bg-[#090b10]/95 backdrop-blur-2xl border-b border-white/10 p-6 flex flex-col gap-5 z-50">
-          {onBackToCover && (
-            <button
-              onClick={() => {
-                handleLinkClick();
-                onBackToCover();
-              }}
-              className="w-full py-2.5 px-4 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-400/40 text-xs font-mono text-cyan-300 flex items-center justify-center gap-2 transition-all cursor-pointer font-bold shadow-md"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span>RETURN TO FRONT PAGE</span>
-            </button>
-          )}
-
-          <div className="flex flex-col gap-3">
+        <div className="md:hidden fixed inset-x-0 top-[56px] bg-[#0a0d14]/98 backdrop-blur-2xl border-b border-white/10 p-6 flex flex-col gap-4 z-50 shadow-2xl">
+          <div className="flex flex-col gap-2">
             {navLinks.map((link) => (
               <a
-                key={link.name}
+                key={link.id}
                 href={link.href}
-                onClick={handleLinkClick}
-                className="text-sm font-mono tracking-widest text-slate-300 hover:text-cyan-400 py-2 border-b border-white/5"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleLinkClick(link.id, link.href);
+                }}
+                className={`text-sm font-medium py-2.5 border-b border-white/5 flex items-center justify-between ${
+                  activeTab === link.id ? 'text-cyan-400 font-semibold' : 'text-slate-300'
+                }`}
               >
-                {link.name}
+                <span>{link.name}</span>
+                <span className="text-xs text-slate-500">→</span>
               </a>
             ))}
           </div>
 
-          <div className="flex flex-wrap items-center gap-4 pt-2">
+          <div className="flex items-center justify-between py-2 border-b border-white/10">
+            <span className="text-xs font-mono text-slate-400">ATMOSPHERE:</span>
             <button
               onClick={() => {
-                handleLinkClick();
+                soundManager.playClick();
+                cycleTheme();
+              }}
+              className="px-3 py-1.5 rounded-full bg-white/10 border border-white/15 text-xs font-mono text-white flex items-center gap-1.5"
+            >
+              <span>{themeConfig.icon}</span>
+              <span className="capitalize">{theme}</span>
+            </button>
+          </div>
+
+          <div className="flex flex-col gap-3 pt-2">
+            <button
+              onClick={() => {
+                soundManager.playClick();
+                setMobileMenuOpen(false);
                 onOpenResume();
               }}
-              className="btn-primary w-full py-2.5 text-xs font-mono justify-center"
+              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-full bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 text-xs font-semibold text-white shadow-lg"
             >
-              <FileDown className="w-4 h-4 mr-1.5" />
-              DOWNLOAD RESUME
+              <span>Download CV</span>
+              <ArrowDownToLine className="w-3.5 h-3.5 text-white" />
             </button>
 
-            <div className="flex items-center justify-between w-full pt-2">
+            <div className="flex items-center justify-between pt-2">
               <a
                 href={PERSONAL_INFO.githubUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs font-mono text-slate-400 hover:text-white flex items-center gap-1.5"
+                className="text-xs text-slate-400 hover:text-white flex items-center gap-1.5"
               >
                 <GithubIcon className="w-3.5 h-3.5" />
-                <span>GITHUB</span>
-                <ArrowUpRight className="w-3 h-3" />
+                <span>GitHub</span>
               </a>
-
               <a
                 href={PERSONAL_INFO.linkedinUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs font-mono text-slate-400 hover:text-white flex items-center gap-1.5"
+                className="text-xs text-slate-400 hover:text-white flex items-center gap-1.5"
               >
                 <LinkedinIcon className="w-3.5 h-3.5" />
-                <span>LINKEDIN</span>
-                <ArrowUpRight className="w-3 h-3" />
+                <span>LinkedIn</span>
               </a>
-
               <button
                 onClick={() => {
-                  handleLinkClick();
+                  soundManager.playClick();
+                  setMobileMenuOpen(false);
                   onOpenAdmin();
                 }}
-                className="text-xs font-mono text-cyan-400 flex items-center gap-1"
+                className="text-xs text-cyan-400 flex items-center gap-1"
               >
                 <ShieldCheck className="w-3.5 h-3.5" />
-                <span>ADMIN</span>
+                <span>Admin</span>
               </button>
             </div>
           </div>

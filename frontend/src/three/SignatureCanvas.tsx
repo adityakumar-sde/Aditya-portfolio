@@ -3,9 +3,10 @@ import * as THREE from 'three';
 
 interface SignatureCanvasProps {
   onCollapsed?: () => void;
+  isLight?: boolean;
 }
 
-export const SignatureCanvas: React.FC<SignatureCanvasProps> = ({ onCollapsed }) => {
+export const SignatureCanvas: React.FC<SignatureCanvasProps> = ({ onCollapsed, isLight = false }) => {
   const mountRef = useRef<HTMLDivElement>(null);
   const animFrameRef = useRef<number | null>(null);
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
@@ -52,11 +53,11 @@ export const SignatureCanvas: React.FC<SignatureCanvasProps> = ({ onCollapsed })
     geo.setAttribute('position', new THREE.BufferAttribute(currentPositions, 3));
 
     const mat = new THREE.PointsMaterial({
-      color: 0x38bdf8,
-      size: 0.08,
+      color: isLight ? 0x0f172a : 0x38bdf8,
+      size: isLight ? 0.09 : 0.08,
       transparent: true,
-      opacity: 0.8,
-      blending: THREE.AdditiveBlending
+      opacity: isLight ? 0.9 : 0.8,
+      blending: isLight ? THREE.NormalBlending : THREE.AdditiveBlending
     });
     const points = new THREE.Points(geo, mat);
     scene.add(points);

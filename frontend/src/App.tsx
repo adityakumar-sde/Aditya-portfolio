@@ -7,17 +7,10 @@ import { ResumeModal } from './components/ResumeModal';
 import { DeveloperTerminalModal, type PortfolioCustomConfig } from './components/DeveloperTerminalModal';
 import { PersonalMusicPlayer } from './components/PersonalMusicPlayer';
 import { MusicProvider } from './context/MusicContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { FrontPageCover } from './sections/FrontPageCover';
 import { HeroSection } from './sections/HeroSection';
-import { EngineeringSystemsSection } from './sections/EngineeringSystemsSection';
-import { ProjectsSection } from './sections/ProjectsSection';
-import { EngineeringStackSection } from './sections/EngineeringStackSection';
-import { EngineeringNowSection } from './sections/EngineeringNowSection';
-import { AiLabSection } from './sections/AiLabSection';
-import { ExperienceSection } from './sections/ExperienceSection';
-import { EducationSection } from './sections/EducationSection';
-import { AboutSection } from './sections/AboutSection';
-import { EngineeringPhilosophySection } from './sections/EngineeringPhilosophySection';
+import { SpatialEngineeringHub } from './sections/SpatialEngineeringHub';
 import { ContactSection } from './sections/ContactSection';
 import { FooterSignature } from './sections/FooterSignature';
 import { PERSONAL_INFO } from './data/portfolioData';
@@ -156,7 +149,8 @@ export const App: React.FC = () => {
       : 'relative min-h-screen bg-[#060709] text-slate-100 selection:bg-cyan-500/20 selection:text-cyan-300 font-body';
 
   return (
-    <MusicProvider>
+    <ThemeProvider>
+      <MusicProvider>
       <div className={rootClasses}>
         {/* Global Personal Music Player */}
         <PersonalMusicPlayer />
@@ -219,25 +213,9 @@ export const App: React.FC = () => {
                   customConfig={portfolioConfig}
                 />
 
-                <EngineeringSystemsSection selectedSystemId={selectedSystemId} />
+                <SpatialEngineeringHub selectedSystemId={selectedSystemId} />
 
-                <ProjectsSection />
-
-                <EngineeringStackSection />
-
-                <EngineeringNowSection />
-
-                <AiLabSection />
-
-                <ExperienceSection />
-
-                <EducationSection />
-
-                <AboutSection />
-
-                <EngineeringPhilosophySection />
-
-                <ContactSection />
+                <ContactSection onOpenResume={() => setIsResumeOpen(true)} />
               </main>
 
               {/* 3D Interactive Footer Signature */}
@@ -274,6 +252,7 @@ export const App: React.FC = () => {
         />
       </div>
     </MusicProvider>
+    </ThemeProvider>
   );
 };
 

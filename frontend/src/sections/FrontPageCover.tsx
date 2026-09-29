@@ -13,9 +13,7 @@ import {
   Sparkles,
   Mail,
   ShieldCheck,
-  Sliders,
-  Globe,
-  Palette,
+Palette,
   Image as ImageIcon,
   Upload,
 } from 'lucide-react';
@@ -29,16 +27,6 @@ interface FrontPageCoverProps {
   onOpenAdmin: () => void;
   onOpenTerminal: () => void;
   hasUnlockedOnce?: boolean;
-}
-
-interface MultilingualTitle {
-  code: string;
-  lang: string;
-  label: string;
-  text: string;
-  fontFamily: string;
-  duration: number;
-  dir?: 'ltr' | 'rtl';
 }
 
 export interface ShayariItem {
@@ -164,72 +152,6 @@ export const SHAYARI_LIBRARY: ShayariItem[] = [
   }
 ];
 
-const MULTILINGUAL_TITLES: MultilingualTitle[] = [
-  {
-    code: 'EN',
-    lang: 'English',
-    label: 'English',
-    text: 'Bihari Engineer',
-    fontFamily: "'Cinzel', 'Syne', sans-serif",
-    duration: 5000,
-    dir: 'ltr'
-  },
-  {
-    code: 'HI',
-    lang: 'Hindi',
-    label: 'हिन्दी',
-    text: 'बिहारी इंजीनियर',
-    fontFamily: "'Noto Sans Devanagari', 'Syne', sans-serif",
-    duration: 3500,
-    dir: 'ltr'
-  },
-  {
-    code: 'FR',
-    lang: 'French',
-    label: 'Français',
-    text: 'Ingénieur Bihari',
-    fontFamily: "'Cinzel', 'Syne', sans-serif",
-    duration: 3500,
-    dir: 'ltr'
-  },
-  {
-    code: 'ES',
-    lang: 'Spanish',
-    label: 'Español',
-    text: 'Ingeniero Bihari',
-    fontFamily: "'Cinzel', 'Syne', sans-serif",
-    duration: 3500,
-    dir: 'ltr'
-  },
-  {
-    code: 'JA',
-    lang: 'Japanese',
-    label: '日本語',
-    text: 'ビハールエンジニア',
-    fontFamily: "'Noto Sans JP', 'Syne', sans-serif",
-    duration: 3500,
-    dir: 'ltr'
-  },
-  {
-    code: 'DE',
-    lang: 'German',
-    label: 'Deutsch',
-    text: 'Bihari-Ingenieur',
-    fontFamily: "'Cinzel', 'Syne', sans-serif",
-    duration: 3500,
-    dir: 'ltr'
-  },
-  {
-    code: 'RU',
-    lang: 'Russian',
-    label: 'Русский',
-    text: 'Бихарский Инженер',
-    fontFamily: "'Cinzel', 'Syne', sans-serif",
-    duration: 3500,
-    dir: 'ltr'
-  }
-];
-
 export interface WallpaperTheme {
   id: string;
   name: string;
@@ -320,9 +242,6 @@ export const FrontPageCover: React.FC<FrontPageCoverProps> = ({
   onOpenTerminal,
   hasUnlockedOnce = false,
 }) => {
-  const [currentLangIndex, setCurrentLangIndex] = useState(0);
-  const [textMode, setTextMode] = useState<'transparent' | 'translucent' | 'solid'>('transparent');
-  const [strokeWidth, setStrokeWidth] = useState<'1.5px' | '2px' | '2.5px'>('2px');
 
   // Pattern 2: Swipe Up Touch & Wheel Gesture State
   const [touchStartY, setTouchStartY] = useState<number | null>(null);
@@ -387,17 +306,9 @@ export const FrontPageCover: React.FC<FrontPageCoverProps> = ({
   const [isProcessingUpload, setIsProcessingUpload] = useState(false);
 
   const currentTheme = themes[activeThemeIndex] || WALLPAPER_THEMES[0];
-  const currentLang = MULTILINGUAL_TITLES[currentLangIndex];
   const currentShayari = SHAYARI_LIBRARY[shayariIndex] || SHAYARI_LIBRARY[0];
 
-  // Auto-rotate multilingual titles
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setCurrentLangIndex((prev) => (prev + 1) % MULTILINGUAL_TITLES.length);
-    }, currentLang.duration);
-
-    return () => clearTimeout(timer);
-  }, [currentLangIndex, currentLang.duration]);
+  
 
 
 
@@ -560,32 +471,6 @@ export const FrontPageCover: React.FC<FrontPageCoverProps> = ({
     }
   };
 
-  // Pure typography styling with ZERO dark drop-shadow or dark outlines.
-  const getTextStyle = () => {
-    if (textMode === 'transparent') {
-      return {
-        WebkitTextStroke: `${strokeWidth} #ffffff`,
-        color: 'transparent',
-        textShadow: 'none',
-        filter: 'none',
-      };
-    }
-    if (textMode === 'translucent') {
-      return {
-        WebkitTextStroke: `${strokeWidth} #ffffff`,
-        color: 'rgba(255, 255, 255, 0.25)',
-        textShadow: 'none',
-        filter: 'none',
-      };
-    }
-    return {
-      color: '#ffffff',
-      WebkitTextStroke: 'none',
-      textShadow: 'none',
-      filter: 'none',
-    };
-  };
-
   return (
     <div
       onTouchStart={handleTouchStart}
@@ -717,47 +602,8 @@ export const FrontPageCover: React.FC<FrontPageCoverProps> = ({
             </div>
           </div>
 
-          {/* Customization & Mode Controls */}
+          {/* Wallpaper Theme Controls */}
           <div className="flex flex-wrap items-center justify-end gap-2 pt-0.5">
-            {/* Active Language Badge */}
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/15 text-[11px] font-mono text-cyan-300 shadow-md">
-              <Globe className="w-3 h-3 text-cyan-400" />
-              <span className="font-bold">{currentLang.code}</span>
-              <span className="text-white/70 text-[10px]">({currentLang.label})</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse ml-0.5" />
-            </div>
-
-            {/* Transparency Mode Switcher */}
-            <button
-              onClick={() => {
-                soundManager.playClick();
-                setTextMode((prev) =>
-                  prev === 'transparent' ? 'translucent' : prev === 'translucent' ? 'solid' : 'transparent'
-                );
-              }}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/40 hover:bg-black/60 text-[10px] font-mono text-cyan-300 hover:text-white border border-white/15 transition-all cursor-pointer shadow-md"
-              title="Toggle Text Transparency"
-            >
-              <Sliders className="w-3 h-3 text-cyan-400" />
-              <span>
-                {textMode === 'transparent' ? '100% TRANSPARENT' : textMode === 'translucent' ? 'SEMI-TRANSLUCENT' : 'SOLID'}
-              </span>
-            </button>
-
-            {/* Stroke Thickness Toggle */}
-            {textMode !== 'solid' && (
-              <button
-                onClick={() => {
-                  soundManager.playClick();
-                  setStrokeWidth((prev) => (prev === '2px' ? '2.5px' : prev === '2.5px' ? '1.5px' : '2px'));
-                }}
-                className="px-2 py-1 rounded-full bg-black/40 hover:bg-black/60 text-[10px] font-mono text-white/80 hover:text-white border border-white/15 transition-all cursor-pointer shadow-md"
-                title="Change Stroke Outline Width"
-              >
-                OUTLINE: {strokeWidth}
-              </button>
-            )}
-
             {/* WALLPAPER THEME SELECTOR BUTTON & FLYOUT */}
             <div className="relative">
               <button
@@ -865,57 +711,8 @@ export const FrontPageCover: React.FC<FrontPageCoverProps> = ({
         </div>
       </header>
 
-      {/* CENTER STAGE */}
-      <div className="relative flex-1 w-full flex flex-col items-center justify-center overflow-hidden px-4 py-8">
-        {/* CREATIVE TYPOGRAPHY: "BIHARI ENGINEER" — UNDER THE FRAME & PERFECTLY FIT IN VIEWPORT */}
-        <div className="relative z-30 mt-3 sm:mt-4 flex justify-center items-center pointer-events-none select-none px-4 w-full max-w-[92vw]">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentLang.code}
-              initial={{ opacity: 0, scale: 0.96, y: 8 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 1.04, y: -8 }}
-              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              className="flex flex-col items-center justify-center text-center w-full"
-            >
-              <h1
-                dir={currentLang.dir || 'ltr'}
-                style={{
-                  ...getTextStyle(),
-                  fontFamily: currentLang.fontFamily,
-                }}
-                className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-widest uppercase leading-tight select-none text-center drop-shadow-md"
-              >
-                {currentLang.text}
-              </h1>
-            </motion.div>
-          </AnimatePresence>
-        </div>
-
-        {/* Language Selection Mini Pill Bar */}
-        <div className="relative z-40 mt-3 sm:mt-4 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/50 backdrop-blur-md border border-white/10 shadow-lg pointer-events-auto">
-          <span className="text-[10px] font-mono text-white/50 uppercase tracking-wider mr-1 hidden sm:inline">
-            Lang:
-          </span>
-          {MULTILINGUAL_TITLES.map((langItem, idx) => (
-            <button
-              key={langItem.code}
-              onClick={() => {
-                soundManager.playClick();
-                setCurrentLangIndex(idx);
-              }}
-              className={`px-2 py-0.5 rounded-full text-[10px] font-mono transition-all cursor-pointer ${
-                idx === currentLangIndex
-                  ? 'bg-cyan-500 text-black font-bold shadow-md shadow-cyan-500/30'
-                  : 'text-white/60 hover:text-white hover:bg-white/10'
-              }`}
-              title={`${langItem.lang} (${langItem.label})`}
-            >
-              {langItem.code}
-            </button>
-          ))}
-        </div>
-      </div>
+      {/* CENTER STAGE: ULTRA-CLEAN UNOBSTRUCTED 4K VIEW */}
+      <div className="relative flex-1 w-full flex flex-col items-center justify-center pointer-events-none select-none" />
 
       {/* BOTTOM FOOTER */}
       <footer className="relative z-40 w-full px-6 pb-6 sm:pb-8 flex flex-col items-center gap-3">
