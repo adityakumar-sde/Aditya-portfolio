@@ -79,13 +79,13 @@ export const THEMES: Record<ThemeMode, ThemeConfig> = {
 };
 
 const normalizeTheme = (saved: string | null): ThemeMode => {
-  if (saved === 'midnight') return 'stars';
+  if (saved === 'midnight' || saved === 'stars') return 'zen';
   if (saved === 'cyber') return 'matrix';
   if (saved === 'emerald') return 'zen';
   if (saved && THEMES[saved as ThemeMode]) {
     return saved as ThemeMode;
   }
-  return 'stars';
+  return 'zen';
 };
 
 interface ThemeContextType {
@@ -105,7 +105,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     } catch (e) {
       console.warn('Failed to load theme mode', e);
     }
-    return 'stars';
+    return 'zen';
   });
 
   const setTheme = (nextTheme: ThemeMode) => {

@@ -2,8 +2,8 @@
 @import "tailwindcss";
 
 :root {
-  --bg-deep: #060709;
-  --bg-graphite: #0a0c10;
+  --bg-deep: #060907;
+  --bg-graphite: #0b100d;
   --bg-card: rgba(13, 16, 23, 0.75);
   --bg-card-hover: rgba(20, 25, 36, 0.9);
   --border-subtle: rgba(255, 255, 255, 0.08);

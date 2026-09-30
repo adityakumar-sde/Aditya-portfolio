@@ -14,6 +14,9 @@ interface MusicContextType {
   volume: number;
   setVolume: (v: number) => void;
   audioError: string | null;
+  currentTime: number;
+  duration: number;
+  seekTo: (time: number) => void;
 }
 
 const MusicContext = createContext<MusicContextType | undefined>(undefined);
@@ -25,6 +28,8 @@ export const MusicProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [statusMessage, setStatusMessage] = useState<string>('Personal Music Player Ready');
   const [volume, setVolumeState] = useState<number>(0.85);
   const [audioError, setAudioError] = useState<string | null>(null);
+  const [currentTime, setCurrentTime] = useState<number>(0);
+  const [duration, setDuration] = useState<number>(0);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const currentSongRef = useRef<Song | null>(null);
@@ -41,6 +46,22 @@ export const MusicProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     audio.volume = volume;
     audio.preload = 'auto';
     audioRef.current = audio;
+
+    audio.ontimeupdate = () => {
+      setCurrentTime(audio.currentTime);
+    };
+
+    audio.ondurationchange = () => {
+      if (audio.duration && !isNaN(audio.duration) && isFinite(audio.duration)) {
+        setDuration(audio.duration);
+      }
+    };
+
+    audio.onloadedmetadata = () => {
+      if (audio.duration && !isNaN(audio.duration) && isFinite(audio.duration)) {
+        setDuration(audio.duration);
+      }
+    };
 
     // Continuous playback: automatically play next song when current finishes
     audio.onended = () => {
@@ -84,8 +105,14 @@ export const MusicProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (!audioRef.current || !song) return;
     setAudioError(null);
     setCurrentSong(song);
+    setCurrentTime(0);
+    setDuration(song.durationSeconds || 0);
 
-    audioRef.current.src = song.audioUrl;
+    const targetUrl = song.audioUrl.startsWith('http')
+      ? song.audioUrl
+      : new URL(song.audioUrl, window.location.origin).href;
+
+    audioRef.current.src = targetUrl;
     audioRef.current.load();
 
     audioRef.current
@@ -110,8 +137,12 @@ export const MusicProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       setStatusMessage('Playback paused');
     } else {
       setAudioError(null);
-      if (!audioRef.current.src || !audioRef.current.src.endsWith(currentSong.audioUrl)) {
-        audioRef.current.src = currentSong.audioUrl;
+      const targetUrl = currentSong.audioUrl.startsWith('http')
+        ? currentSong.audioUrl
+        : new URL(currentSong.audioUrl, window.location.origin).href;
+
+      if (!audioRef.current.src || audioRef.current.src !== targetUrl) {
+        audioRef.current.src = targetUrl;
         audioRef.current.load();
       }
       audioRef.current
@@ -127,6 +158,13 @@ export const MusicProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         });
     }
   }, [isPlaying, currentSong]);
+
+  const seekTo = useCallback((time: number) => {
+    if (audioRef.current && !isNaN(time) && isFinite(time)) {
+      audioRef.current.currentTime = time;
+      setCurrentTime(time);
+    }
+  }, []);
 
   const playNext = useCallback(async () => {
     const list = playlistRef.current;
@@ -253,6 +291,9 @@ export const MusicProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         volume,
         setVolume,
         audioError,
+        currentTime,
+        duration,
+        seekTo,
       }}
     >
       {children}

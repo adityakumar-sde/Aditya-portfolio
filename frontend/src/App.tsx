@@ -142,18 +142,59 @@ export const App: React.FC = () => {
     };
   }, [viewMode]);
 
+  // Global Zoom Lock: Prevent browser zooming via Ctrl+wheel, touch pinch, and keyboard zoom shortcuts
+  useEffect(() => {
+    const handleWheelZoom = (e: WheelEvent) => {
+      if (e.ctrlKey) {
+        e.preventDefault();
+      }
+    };
+
+    const handleKeyZoom = (e: KeyboardEvent) => {
+      if (
+        (e.ctrlKey || e.metaKey) &&
+        ['+', '-', '=', '_', '0', 'NumpadAdd', 'NumpadSubtract'].includes(e.key || e.code)
+      ) {
+        e.preventDefault();
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length > 1) {
+        e.preventDefault();
+      }
+    };
+
+    const preventGesture = (e: Event) => e.preventDefault();
+
+    window.addEventListener('wheel', handleWheelZoom, { passive: false });
+    window.addEventListener('keydown', handleKeyZoom, { passive: false });
+    window.addEventListener('touchmove', handleTouchMove, { passive: false });
+    document.addEventListener('gesturestart', preventGesture);
+    document.addEventListener('gesturechange', preventGesture);
+    document.addEventListener('gestureend', preventGesture);
+
+    return () => {
+      window.removeEventListener('wheel', handleWheelZoom);
+      window.removeEventListener('keydown', handleKeyZoom);
+      window.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('gesturestart', preventGesture);
+      document.removeEventListener('gesturechange', preventGesture);
+      document.removeEventListener('gestureend', preventGesture);
+    };
+  }, []);
 
   const rootClasses =
     viewMode === 'cover'
-      ? 'relative w-full h-screen overflow-hidden bg-[#060709] text-slate-100 selection:bg-cyan-500/20 selection:text-cyan-300 font-body'
-      : 'relative min-h-screen bg-[#060709] text-slate-100 selection:bg-cyan-500/20 selection:text-cyan-300 font-body';
+      ? 'relative w-full h-screen overflow-hidden bg-[#060907] text-slate-100 selection:bg-emerald-500/20 selection:text-emerald-300 font-body'
+      : 'relative min-h-screen bg-[#060907] text-slate-100 selection:bg-emerald-500/20 selection:text-emerald-300 font-body';
 
   return (
     <ThemeProvider>
       <MusicProvider>
       <div className={rootClasses}>
-        {/* Global Personal Music Player */}
-        <PersonalMusicPlayer />
+        {/* Personal Music Player scoped strictly to Editorial Front Page Cover */}
+        {viewMode === 'cover' && <PersonalMusicPlayer />}
 
         <AnimatePresence mode="wait">
           {viewMode === 'cover' ? (

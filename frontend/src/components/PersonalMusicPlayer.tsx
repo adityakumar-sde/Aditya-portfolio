@@ -16,15 +16,15 @@ import { useMusic } from '../context/MusicContext';
 import { soundManager } from '../services/audio';
 
 export const PersonalMusicPlayer: React.FC = () => {
-  const {
-    currentSong,
-    isPlaying,
-    togglePlay,
-    playSong,
-    playNext,
-    playPrevious,
-    executeCommand,
-  } = useMusic();
+const {
+  currentSong,
+  isPlaying,
+  togglePlay,
+  playSong,
+  playNext,
+  playPrevious,
+  executeCommand,
+} = useMusic();
 
   const [isPromptOpen, setIsPromptOpen] = useState(false);
   const [commandInput, setCommandInput] = useState('');
@@ -40,6 +40,7 @@ export const PersonalMusicPlayer: React.FC = () => {
     genre: 'Chhath Puja',
     era: 'Classic',
     audioUrl: '/music/kaanche-hi-bans-ke-bahangiya.mp3',
+    durationSeconds: 327,
     enabled: true
   };
 

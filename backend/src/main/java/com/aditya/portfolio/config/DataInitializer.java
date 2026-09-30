@@ -488,6 +488,194 @@ public class DataInitializer implements CommandLineRunner {
                 "/images/music/retro-romance.jpg",
                 398,
                 true
+            ),
+
+            // ========================================================
+            // 6. DEVOTIONAL & BHAKTI SONGS (Complete Full Prayers & Bhajans)
+            // ========================================================
+            new Song(
+                "Shree Hanuman Chalisa",
+                "Hariharan",
+                "Shree Hanuman Chalisa (Hanuman Ashtak)",
+                "Hindi",
+                "Bhajan / Devotional",
+                "Classic",
+                "Devotional",
+                "devotional, bhakti, hanuman chalisa, hariharan, bajrangbali, hanuman, prayer, aarti, chalisa, full",
+                "https://aac.saavncdn.com/256/254c18ccf39f955649057ed4426aa7f3_320.mp4",
+                "https://c.saavncdn.com/256/Shree-Hanuman-Chalisa-Hanuman-Ashtak-Hindi-1992-20260324161030-500x500.jpg",
+                586,
+                true
+            ),
+            new Song(
+                "Shiv Tandav Stotram",
+                "Shankar Mahadevan",
+                "Bhole Shiv Shankar",
+                "Sanskrit",
+                "Bhajan / Devotional",
+                "Modern",
+                "Devotional",
+                "devotional, bhakti, shiv, shiva, shiv tandav stotram, mahadev, bhole, shankar mahadevan, stotram, full",
+                "https://aac.saavncdn.com/870/4c18e7546871c08147aa76462fccc52f_320.mp4",
+                "https://c.saavncdn.com/870/Bhole-Shiv-Shankar-Sanskrit-2025-20250720025922-500x500.jpg",
+                553,
+                true
+            ),
+            new Song(
+                "Achyutam Keshavam Krishna Damodaram",
+                "Pratiksha Vashishtha",
+                "Divine Melodies",
+                "Hindi",
+                "Bhajan / Devotional",
+                "Modern",
+                "Devotional",
+                "devotional, bhakti, krishna, achyutam keshavam, kaun kehte hai bhagwan aate nahi, bhajan, full",
+                "https://aac.saavncdn.com/225/4d5b20b0cd6f140961cceb3310e298e2_320.mp4",
+                "https://c.saavncdn.com/225/Divine-Melodies-Hindi-2026-20260821114218-500x500.jpg",
+                274,
+                true
+            ),
+
+            // ========================================================
+            // 7. HARYANVI SUPERHITS (100% Full Studio Songs)
+            // ========================================================
+            new Song(
+                "52 Gaj Ka Daman",
+                "Renuka Panwar",
+                "52 Gaj Ka Daman",
+                "Haryanvi",
+                "Haryanvi Hits",
+                "Modern",
+                "Energetic",
+                "haryanvi, 52 gaj ka daman, renuka panwar, haryanvi song, haryanvi hits, dance, folk, full",
+                "https://aac.saavncdn.com/407/d8b1de34b18920d7715033dbf8c93f47_320.mp4",
+                "https://c.saavncdn.com/407/52-Gaj-Ka-Daman-Haryanvi-2020-20210625170012-500x500.jpg",
+                163,
+                true
+            ),
+            new Song(
+                "Gypsy (Balam Thanedar)",
+                "Antra Singh Priyanka",
+                "Gypsy Balam Thanedar",
+                "Haryanvi",
+                "Haryanvi Hits",
+                "Modern",
+                "Energetic",
+                "haryanvi, gypsy, balam thanedar, pranjal dahiya, haryanvi hits, dance, full",
+                "https://aac.saavncdn.com/259/7fe06c25a05457d58f591533cd2b4825_320.mp4",
+                "https://c.saavncdn.com/259/Gypsy-Balam-Thanedar-Bhojpuri-2022-20220823032000-500x500.jpg",
+                203,
+                true
+            ),
+            new Song(
+                "Motto",
+                "Diler Kharkiya",
+                "Sadgi Teri Ne Dil Touch Karke",
+                "Haryanvi",
+                "Haryanvi Hits",
+                "Modern",
+                "Playful",
+                "haryanvi, motto, diler kharkiya, ajay hooda, haryanvi hits, full",
+                "https://aac.saavncdn.com/195/188b32012d89a595de3163898654ae00_320.mp4",
+                "https://c.saavncdn.com/195/Sadgi-Teri-Ne-Dil-Touch-Karke-Hindi-2022-20220307081247-500x500.jpg",
+                182,
+                true
+            ),
+
+            // ========================================================
+            // 8. BHOJPURI SUPERHITS (Pawan Singh & Khesari Lal - Full Songs)
+            // ========================================================
+            new Song(
+                "RajaJi Ke Dilwa",
+                "Pawan Singh & Shivani Singh",
+                "Rajaji Ke Dilwa",
+                "Bhojpuri",
+                "Bhojpuri Trending",
+                "Modern",
+                "Energetic",
+                "bhojpuri, pawan singh, shivani singh, rajaji ke dilwa, bhojpuri trending, dance, hit, full",
+                "https://aac.saavncdn.com/796/56b30e163800933588261c02eb3f8994_320.mp4",
+                "https://c.saavncdn.com/796/Rajaji-Ke-Dilwa-Bhojpuri-2023-20230430101330-500x500.jpg",
+                184,
+                true
+            ),
+            new Song(
+                "Nathuniya",
+                "Khesari Lal Yadav & Priyanka Singh",
+                "Khesari Lal Yadav - Bhojpuri Hit Machine",
+                "Bhojpuri",
+                "Bhojpuri Trending",
+                "Modern",
+                "Energetic",
+                "bhojpuri, khesari lal, khesari lal yadav, priyanka singh, nathuniya, bhojpuri trending, full",
+                "https://aac.saavncdn.com/552/3585ac65a53569958fc61e83d1e1c3de_sar_320.mp4",
+                "https://c.saavncdn.com/552/Khesari-Lal-Yadav-Bhojpuri-Hit-Machine-Bhojpuri-2022-20220606163613-500x500.jpg",
+                213,
+                true
+            ),
+
+            // ========================================================
+            // 9. MODERN HINDI & BOLLYWOOD HITS (100% Full Audio)
+            // ========================================================
+            new Song(
+                "Kesariya",
+                "Pritam & Arijit Singh",
+                "Brahmastra",
+                "Hindi",
+                "Bollywood Romantic",
+                "Modern",
+                "Romantic",
+                "hindi, bollywood, romantic, kesariya, arijit singh, pritam, brahmastra, love, full",
+                "https://aac.saavncdn.com/871/c2febd353f3a076a406fa37510f31f9f_320.mp4",
+                "https://c.saavncdn.com/871/Brahmastra-Original-Motion-Picture-Soundtrack-Hindi-2022-20221006155213-500x500.jpg",
+                268,
+                true
+            ),
+            new Song(
+                "Tum Hi Ho",
+                "Arijit Singh",
+                "Aashiqui 2",
+                "Hindi",
+                "Bollywood Romantic",
+                "Modern",
+                "Romantic",
+                "hindi, bollywood, romantic, tum hi ho, aashiqui 2, arijit singh, love anthem, full",
+                "https://aac.saavncdn.com/430/5c5ea5cc00e3bff45616013226f376fe_320.mp4",
+                "https://c.saavncdn.com/430/Aashiqui-2-Hindi-2013-500x500.jpg",
+                262,
+                true
+            ),
+            new Song(
+                "Raataan Lambiyan",
+                "Jubin Nautiyal & Asees Kaur",
+                "Shershaah",
+                "Hindi",
+                "Bollywood Romantic",
+                "Modern",
+                "Romantic",
+                "hindi, bollywood, romantic, raataan lambiyan, shershaah, jubin nautiyal, asees kaur, full",
+                "https://aac.saavncdn.com/238/35726d4394604604e961bf5b846870d0_320.mp4",
+                "https://c.saavncdn.com/238/Shershaah-Original-Motion-Picture-Soundtrack--Hindi-2021-20210815181610-500x500.jpg",
+                230,
+                true
+            ),
+
+            // ========================================================
+            // 10. PUNJABI HITS (100% Full Audio)
+            // ========================================================
+            new Song(
+                "295",
+                "Sidhu Moose Wala",
+                "Moosetape",
+                "Punjabi",
+                "Punjabi Hits",
+                "Modern",
+                "Energetic",
+                "punjabi, 295, sidhu moose wala, sidhu moosewala, moosetape, punjabi hits, full",
+                "https://aac.saavncdn.com/609/852628435c98083dfe217c1cfa731bb5_320.mp4",
+                "https://c.saavncdn.com/609/Moosetape-Punjabi-2021-20260626155141-500x500.jpg",
+                270,
+                true
             )
         );
 
