@@ -25,8 +25,8 @@ WORKDIR /app
 # Create unprivileged system user for enterprise security
 RUN addgroup -S spring && adduser -S spring -G spring
 
-# Copy packaged JAR or WAR from builder stage
-COPY --from=builder /build/target/*.[jw]ar app.jar
+# Copy packaged JAR from builder stage
+COPY --from=builder /build/target/*.jar app.jar
 
 # Set ownership to unprivileged user
 RUN chown -R spring:spring /app
@@ -40,6 +40,6 @@ ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC -
 
 # Healthcheck to verify Spring Boot is responding
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
-  CMD wget --quiet --tries=1 --spider http://localhost:${PORT:-8080}/api/music/default || exit 1
+  CMD wget --quiet --tries=1 --spider http://localhost:8080/api/projects || exit 1
 
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -Dserver.port=${PORT:-8080} -jar app.jar"]
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
