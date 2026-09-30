@@ -1,18 +1,18 @@
 # =========================================================
-# STAGE 1: Build Spring Boot 3 Executable JAR with Maven
+# Root Dockerfile for Spring Boot Backend on Render / Cloud
 # =========================================================
 FROM maven:3.9-eclipse-temurin-17-alpine AS builder
 
 WORKDIR /build
 
 # Cache Maven dependencies
-COPY pom.xml .
+COPY backend/pom.xml .
 RUN mvn dependency:go-offline -B
 
 # Copy backend source code
-COPY src ./src
+COPY backend/src ./src
 
-# Package production executable JAR
+# Package production executable WAR or JAR
 RUN mvn clean package -DskipTests=true -B
 
 # =========================================================
