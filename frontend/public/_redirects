@@ -1,0 +1,10 @@
+# =========================================================
+# Cloudflare Pages SPA Redirects & Proxy Rules
+# =========================================================
+
+# If using Cloudflare Pages to proxy directly to Render Backend:
+# /api/*  https://portfolio-backend.onrender.com/api/:splat  200
+# /ws/*   https://portfolio-backend.onrender.com/ws/:splat   200
+
+# SPA Fallback for client-side navigation
+/*    /index.html   200

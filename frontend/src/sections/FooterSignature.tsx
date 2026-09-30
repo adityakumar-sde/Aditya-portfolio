@@ -32,6 +32,28 @@ export const FooterSignature: React.FC = () => {
           }`}
         >
           <span>DESIGNED & ENGINEERED BY ADITYA KUMAR</span>
+          
+          {/* Real-time GitHub Visitors & Cloudflare Edge Status */}
+          <div className="flex items-center gap-3">
+            <a
+              href="https://github.com/adityakumarbju121"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center hover:opacity-90 transition-opacity"
+              title="GitHub Visitors Counter"
+            >
+              <img
+                src="https://komarev.com/ghpvc/?username=adityakumarbju121&label=Visitors&color=00e5ff&style=flat-square"
+                alt="GitHub Profile Views"
+                className="h-4 rounded border border-white/10"
+              />
+            </a>
+            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-orange-500/10 border border-orange-500/30 text-orange-400 text-[10px]">
+              <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" />
+              Cloudflare Edge
+            </span>
+          </div>
+
           <span>© 2026 Aditya Kumar. All rights reserved.</span>
         </div>
       </div>
