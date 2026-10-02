@@ -8,8 +8,8 @@ export const PERSONAL_INFO = {
   secondaryStatement: 'Java · Spring Boot · React · Microservices · Data · AI · Cloud',
   email: 'adityakumarbju121@gmail.com',
   location: 'Delhi, India',
-  githubUrl: 'https://github.com',
-  linkedinUrl: 'https://linkedin.com/in',
+  githubUrl: 'https://github.com/adityakumar-sde',
+  linkedinUrl: 'https://www.linkedin.com/in/adityakumar-sde/',
   resumePath: '/resume.pdf',
   about: "I'm a Software Engineer focused on building reliable backend systems, modern web applications, realtime platforms and practical AI-powered solutions. I bridge robust enterprise architectures in Java and Spring Boot with reactive user experiences, distributed data persistence, and modern automation workflows.",
 };

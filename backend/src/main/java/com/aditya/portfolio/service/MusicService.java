@@ -15,6 +15,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
@@ -309,6 +310,7 @@ public class MusicService {
     /**
      * AI-friendly natural language command handler.
      */
+        @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public MusicCommandResponse processCommand(String commandText) {
 
         if (commandText == null || commandText.trim().isEmpty()) {
@@ -1225,7 +1227,7 @@ public class MusicService {
      *
      * Newly discovered songs are saved into MySQL.
      */
-    @Transactional
+        @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public List<SongResponse> searchOnlineMusicApi(
             String query
     ) {

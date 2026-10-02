@@ -186,17 +186,18 @@ export const App: React.FC = () => {
 
   const rootClasses =
     viewMode === 'cover'
-      ? 'relative w-full h-screen overflow-hidden bg-[#060907] text-slate-100 selection:bg-emerald-500/20 selection:text-emerald-300 font-body'
-      : 'relative min-h-screen bg-[#060907] text-slate-100 selection:bg-emerald-500/20 selection:text-emerald-300 font-body';
+      ? 'relative w-full h-screen overflow-hidden bg-[#070b14] text-slate-100 selection:bg-cyan-400/20 selection:text-cyan-200 font-body transition-colors duration-500 ease-out'
+      : 'relative min-h-screen bg-[#070b14] text-slate-100 selection:bg-cyan-400/20 selection:text-cyan-200 font-body transition-colors duration-500 ease-out';
 
   return (
     <ThemeProvider>
       <MusicProvider>
-      <div className={rootClasses}>
+      <div className={`${rootClasses} page-shell`}>
         {/* Personal Music Player scoped strictly to Editorial Front Page Cover */}
         {viewMode === 'cover' && <PersonalMusicPlayer />}
 
-        <AnimatePresence mode="wait">
+        <div className="absolute inset-0 bg-[#070b14]" aria-hidden="true" />
+        <AnimatePresence mode="sync">
           {viewMode === 'cover' ? (
             /* ========================================================= */
             /* 1. EDITORIAL FRONT PAGE COVER (Locked until user unlocks) */
@@ -205,9 +206,9 @@ export const App: React.FC = () => {
               key="front-cover"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              exit={{ opacity: 0, y: -25, scale: 0.99 }}
-              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-              className="w-full h-screen overflow-hidden will-change-transform"
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.28, ease: 'easeOut' }}
+              className="relative z-10 w-full h-screen overflow-hidden will-change-transform bg-[#070b14]"
             >
               <FrontPageCover
                 hasUnlockedOnce={hasUnlockedOnce}
@@ -232,11 +233,11 @@ export const App: React.FC = () => {
             /* ========================================================= */
             <motion.div
               key="3d-portfolio"
-              initial={{ opacity: 0, y: 25, scale: 1.01 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 25, scale: 0.99 }}
-              transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-              className="relative w-full will-change-transform"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.28, ease: 'easeOut' }}
+              className="relative z-10 w-full min-h-screen will-change-transform bg-[#070b14]"
             >
               {/* Top Navbar with 'COVER' return toggle & Terminal button */}
               <Navbar

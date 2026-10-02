@@ -1,0 +1,63 @@
+const targets = await (await fetch('http://127.0.0.1:9222/json')).json();
+const page = targets.find((target) => target.type === 'page' && target.url.startsWith('http://127.0.0.1:5173'));
+if (!page) throw new Error('Portfolio page missing');
+const socket = new WebSocket(page.webSocketDebuggerUrl);
+await new Promise((resolve, reject) => { socket.addEventListener('open', resolve, { once: true }); socket.addEventListener('error', reject, { once: true }); });
+let sequence = 0;
+const pending = new Map();
+socket.addEventListener('message', (event) => { const message = JSON.parse(event.data); if (message.method === 'Runtime.exceptionThrown') console.error('Runtime exception:', JSON.stringify(message.params.exceptionDetails)); if (message.id && pending.has(message.id)) { pending.get(message.id)(message); pending.delete(message.id); } });
+const send = (method, params = {}) => new Promise((resolve, reject) => { const id = ++sequence; pending.set(id, (message) => message.error ? reject(new Error(message.error.message)) : resolve(message.result)); socket.send(JSON.stringify({ id, method, params })); });
+const waitForPageLoad = () => new Promise((resolve) => {
+  const listener = (event) => {
+    const message = JSON.parse(event.data);
+    if (message.method === 'Page.loadEventFired') {
+      socket.removeEventListener('message', listener);
+      resolve();
+    }
+  };
+  socket.addEventListener('message', listener);
+});
+const evaluate = async (expression) => { const response = await send('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true }); if (response.exceptionDetails) throw new Error(response.exceptionDetails.text); return response.result.value; };
+await send('Page.enable');
+await send('Runtime.enable');
+await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
+const openResume = async () => evaluate('(() => { if (document.querySelector(".resume-paper")) return true; const button = Array.from(document.querySelectorAll("button")).find(item => /resume/i.test(item.innerText) && !/close/i.test(item.getAttribute("aria-label") || "")); button?.click(); return Boolean(button); })()');
+const printResume = async (label) => {
+  await evaluate('window.print = () => {}; true');
+  await openResume();
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  const state = await evaluate('(() => { const paper=document.querySelector(".resume-paper"); return { title:paper?.querySelector("h1")?.innerText, sections:Array.from(paper?.querySelectorAll(":scope > .resume-section > h2")||[]).map(x=>x.innerText), projects:Array.from(paper?.querySelectorAll(".resume-project h3")||[]).map(x=>x.innerText), projectCount:paper?.querySelectorAll(".resume-project").length, contentHeight:paper?.lastElementChild?.getBoundingClientRect().bottom-paper?.getBoundingClientRect().top, textLength:paper?.innerText.length }; })()');
+  await evaluate('window.__printCalls = 0; window.print = () => { window.__printCalls += 1; }; true');
+  const clicked = await evaluate('(() => { const button=Array.from(document.querySelectorAll("button")).find(item=>item.innerText.trim()==="Print"); button?.click(); return Boolean(button); })()');
+  const handlerState = await evaluate('({ printCalls: window.__printCalls, scale: document.querySelector(".resume-paper")?.style.getPropertyValue("--resume-print-scale"), width: document.querySelector(".resume-paper")?.getBoundingClientRect().width })');
+  console.log('App print handler state:', JSON.stringify(handlerState));
+  await send('Emulation.setEmulatedMedia', { media: 'print' });
+  const styles = await evaluate('(() => { const selectors=["html","body","#root",".resume-modal-shell",".resume-modal-panel",".resume-builder",".resume-editor",".resume-builder > section",".resume-paper",".resume-heading h1",".resume-section h2"]; return { children:Array.from(document.body.children).map(element=>({tag:element.tagName,className:typeof element.className==="string"?element.className:"",display:getComputedStyle(element).display})), styles:selectors.map(selector=>{const element=document.querySelector(selector); if(!element)return{selector,found:false}; const style=getComputedStyle(element);const rect=element.getBoundingClientRect();return{selector,display:style.display,position:style.position,visibility:style.visibility,opacity:style.opacity,color:style.color,width:rect.width,height:rect.height,top:rect.top,left:rect.left,zoom:style.zoom,text:element.innerText?.slice(0,50)};})}; })()');
+  console.log('Actual print media styles:', JSON.stringify(styles));
+  const screenshot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true });
+  const { writeFile } = await import('node:fs/promises');
+  const screenshotName = label.startsWith('fresh') ? 'resume-full-print-fresh.png' : 'resume-full-print-migrated.png';
+  await writeFile(`${process.env.TEMP}\\${screenshotName}`, Buffer.from(screenshot.data, 'base64'));
+  const pdf = await send('Page.printToPDF', { printBackground: true, preferCSSPageSize: true, displayHeaderFooter: false });
+  const bytes = Buffer.from(pdf.data, 'base64');
+  const source = bytes.toString('latin1');
+  const fitted = { bytes: bytes.length, pages: (source.match(/\/Type\s*\/Page\b/g) || []).length, textOperators: (source.match(/\bTj\b/g) || []).length };
+  await evaluate('document.querySelector(".resume-paper")?.style.setProperty("--resume-print-scale", "1")');
+  const fullPdf = await send('Page.printToPDF', { printBackground: true, preferCSSPageSize: true, displayHeaderFooter: false });
+  const fullBytes = Buffer.from(fullPdf.data, 'base64');
+  const fullSource = fullBytes.toString('latin1');
+  const fullSize = { bytes: fullBytes.length, pages: (fullSource.match(/\/Type\s*\/Page\b/g) || []).length, textOperators: (fullSource.match(/\bTj\b/g) || []).length };
+  const report = { label, state, printClicked: clicked, scale: handlerState.scale, fitted, fullSize };
+  console.log(JSON.stringify(report));
+  await send('Emulation.setEmulatedMedia', { media: '' });
+  return report;
+};
+await printResume('fresh defaults');
+const injected = await evaluate('(() => { const draft=JSON.parse(localStorage.getItem("portfolio-resume-draft")); draft.projects=[{id:"tam-dialer-platform",title:"Enterprise Dialing Software Platform",period:"Ongoing",technologies:["Java","Spring Boot","Hibernate/JPA","JSP","Microservices","Asterisk","AMI","CTI","Bootstrap"],highlights:["Contribute across web interfaces, Java services, and Asterisk telephony integrations for an enterprise dialing platform."]},{id:"ecommerce-application",title:"E-Commerce Application",period:"Feb 2024 - Dec 2025",technologies:["JavaScript","REST APIs","SQL"],highlights:["Designed catalog, cart, checkout, authentication, product management, and order workflows."]},{id:"hospital-management",title:"Hospital Management System",period:"Aug 2024 - Dec 2024",technologies:[],highlights:["Modeled patient, doctor, appointment, prescription, and staff workflows across UI, backend, and database layers."]},{id:"ticket-booking",title:"Ticket Booking System",period:"Mar 2025 - Dec 2025",technologies:[],highlights:["Designed event discovery, seat selection, booking, payment, and transaction workflows."]},{id:"snake-game",title:"Snake Game",period:"Mar 2024 - Apr 2024",technologies:["Java","Swing"],highlights:["Built grid-based gameplay with movement controls and score tracking."]}]; localStorage.setItem("portfolio-resume-draft",JSON.stringify(draft)); return draft.projects.length; })()');
+console.log('Injected previous saved project count:', injected);
+const pageLoaded = waitForPageLoad();
+await send('Page.navigate', { url: 'http://127.0.0.1:5173/?resume-migration-check=1' });
+await pageLoaded;
+console.log('Reloaded page state:', JSON.stringify(await evaluate('({readyState:document.readyState,bodyText:document.body.innerText.slice(0,90)})')));
+await printResume('previous five-project saved draft after migration');
+socket.close();

@@ -15,6 +15,7 @@ import { PERSONAL_INFO } from '../data/portfolioData';
 import { apiService } from '../services/api';
 import { soundManager } from '../services/audio';
 import { useTheme } from '../context/ThemeContext';
+import { openGmailCompose } from '../utils/email';
 
 interface ContactSectionProps {
   onOpenResume?: () => void;
@@ -201,13 +202,20 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ onOpenResume }) 
                 </div>
 
                 <div className="flex items-center justify-between gap-2 pt-1">
-                  <a
-                    href={`mailto:${PERSONAL_INFO.email}`}
-                    onClick={() => soundManager.playClick()}
-                    className="text-xs sm:text-sm font-mono font-semibold text-slate-200 hover:text-emerald-300 transition-colors truncate"
+                  <button
+                    type="button"
+                    onClick={() => {
+                      soundManager.playClick();
+                      openGmailCompose({
+                        to: PERSONAL_INFO.email,
+                        subject: 'Portfolio Inquiry',
+                        body: 'Hello Aditya,\n\nI came across your portfolio and would like to connect regarding a potential opportunity.\n\nPlease let me know a suitable time to connect.\n\nBest regards,\n[Your Name]',
+                      });
+                    }}
+                    className="text-left text-xs sm:text-sm font-mono font-semibold text-slate-200 hover:text-emerald-300 transition-colors truncate"
                   >
                     {PERSONAL_INFO.email}
-                  </a>
+                  </button>
 
                   <button
                     onClick={handleCopyEmail}

@@ -20,6 +20,7 @@ Palette,
 import { GithubIcon } from '../components/SocialIcons';
 import { PERSONAL_INFO } from '../data/portfolioData';
 import { soundManager } from '../services/audio';
+import { openGmailCompose } from '../utils/email';
 
 interface FrontPageCoverProps {
   onUnlock3D: (targetSection?: string) => void;
@@ -31,126 +32,211 @@ interface FrontPageCoverProps {
 
 export interface ShayariItem {
   id: number;
-  category: 'breakup' | 'love' | 'sad' | 'emotional' | 'normal' | 'motivation';
+  poet: string;
+  mood: string;
   line1: string;
   line2: string;
 }
 
-// Complete Hindi Shayari Collection - Sad, Love, Emotional, Breakup, Normal & Motivational
+// Brief attributed excerpts; full poems are not reproduced.
 export const SHAYARI_LIBRARY: ShayariItem[] = [
-  // 1. Breakup & Heartbreak (Featured Original)
   {
     id: 1,
-    category: 'breakup',
-    line1: 'खाली पड़े मेरे हाथ देख लो, कोई नहीं मेरे साथ देख लो,',
-    line2: 'जिसे चाहा सारी उम्र बड़ी शिद्दत से, वो जाते-जाते कह गए अपनी औकात देख लो।'
+    poet: 'मिर्ज़ा ग़ालिब',
+    mood: 'इश्क़ और उलझन',
+    line1: 'दिल-ए-नादाँ तुझे हुआ क्या है,',
+    line2: 'आख़िर इस दर्द की दवा क्या है?'
   },
-  // 2. Love & Romantic (इश्क और मोहब्बत)
   {
     id: 2,
-    category: 'love',
-    line1: 'तेरी मुस्कुराहट में वो जादू है जो हर दर्द भुला दे,',
-    line2: 'खुदा करे ये जिंदगी तेरी बाहों और पनाहों में ही गुजर जाए।'
+    poet: 'जौन एलिया',
+    mood: 'दर्द',
+    line1: 'मैं भी बहुत अजीब हूँ इतना अजीब हूँ कि बस,',
+    line2: 'ख़ुद को तबाह कर लिया और मलाल भी नहीं।'
   },
-  // 3. Sad & Loneliness (उदासी और तन्हाई)
   {
     id: 3,
-    category: 'sad',
-    line1: 'कभी-कभी खामोशी ही सबसे गहरा दर्द बयां कर देती है,',
-    line2: 'जो जान से प्यारे थे, वही आज अजनबियों की तरह गुजर गए।'
+    poet: 'अल्लामा इक़बाल',
+    mood: 'हौसला',
+    line1: 'सितारों से आगे जहाँ और भी हैं,',
+    line2: 'अभी इश्क़ के इम्तिहाँ और भी हैं।'
   },
-  // 4. Emotional & Life Truth (जिंदगी की सच्चाई)
   {
     id: 4,
-    category: 'emotional',
-    line1: 'जिंदगी के सफर में बहुत से चेहरे करीब आकर बिछड़ गए,',
-    line2: 'कुछ ने मुस्कुराना सिखाया, तो कुछ ने दुनिया का सच दिखा दिया।'
+    poet: 'फ़ैज़ अहमद फ़ैज़',
+    mood: 'इंतज़ार',
+    line1: 'गुलों में रंग भरे बाद-ए-नौबहार चले,',
+    line2: 'चले भी आओ कि गुलशन का कारोबार चले।'
   },
-  // 5. Normal & Philosophy / Peace (सादगी और सुकून)
   {
     id: 5,
-    category: 'normal',
-    line1: 'सादगी में जो सुकून है वो दुनिया के किसी दिखावे में नहीं,',
-    line2: 'चंद पलों की जिंदगी है, हर लम्हे को मुस्कुराकर जीना सीख लो।'
+    poet: 'गुलज़ार',
+    mood: 'यादें',
+    line1: 'दिल ढूँढता है फिर वही फ़ुर्सत के रात-दिन,',
+    line2: 'बैठे रहें तसव्वुर-ए-जानाँ किए हुए।'
   },
-  // 6. Ambition & Revenge Hustle (संकल्प और मुकाम)
   {
     id: 6,
-    category: 'motivation',
-    line1: 'ठुकरा दिया जिन्होंने हमें हमारा वक्त देखकर,',
-    line2: 'कसम खाते हैं, ऐसा वक्त लाएंगे कि मिलना पड़ेगा हमसे वक्त लेकर।'
+    poet: 'निदा फ़ाज़ली',
+    mood: 'इंसानियत',
+    line1: 'घर से मस्जिद है बहुत दूर, चलो यूँ कर लें,',
+    line2: 'किसी रोते हुए बच्चे को हँसाया जाए।'
   },
-  // 7. Love & Soul Connection
   {
     id: 7,
-    category: 'love',
-    line1: 'इश्क वो नहीं जो चेहरे से शुरू होकर जिस्म पर खत्म हो,',
-    line2: 'इश्क वो है जो रूह से जुड़कर ताउम्र दुआओं में शामिल रहे।'
+    poet: 'दुष्यंत कुमार',
+    mood: 'बदलाव',
+    line1: 'हो गई है पीर पर्वत-सी पिघलनी चाहिए,',
+    line2: 'इस हिमालय से कोई गंगा निकलनी चाहिए।'
   },
-  // 8. Engineer Code Metaphor
   {
     id: 8,
-    category: 'motivation',
-    line1: 'टूटे हुए दिल से जब कोई इंजीनियर कोड लिखता है,',
-    line2: 'तो बग नहीं, पूरी दुनिया हिलाने वाला सिस्टम खड़ा होता है।'
+    poet: 'राहत इंदौरी',
+    mood: 'बग़ावत',
+    line1: 'शाख़ों से टूट जाएँ वो पत्ते नहीं हैं हम,',
+    line2: 'आँधी से कोई कह दे कि औक़ात में रहे।'
   },
-  // 9. Emotional Heartache
   {
     id: 9,
-    category: 'emotional',
-    line1: 'हम वो नहीं जो हर महफिल में अपने आंसुओं का तमाशा बनाएं,',
-    line2: 'हम तन्हाइयों में बिखरकर भी खुद को समेटना बखूबी जानते हैं।'
+    poet: 'जावेद अख़्तर',
+    mood: 'मोहब्बत',
+    line1: 'कुछ ना कहो, कुछ भी ना कहो,',
+    line2: 'क्या कहना है, क्या सुनना है।'
   },
-  // 10. Bihari Engineer Grit
   {
     id: 10,
-    category: 'motivation',
-    line1: 'मोहब्बत में हारे जरूर हैं मगर हौसला अभी जिंदा है,',
-    line2: 'हम वो बिहारी इंजीनियर हैं जो राख से भी अंगार बना दें।'
+    poet: 'मुनव्वर राना',
+    mood: 'माँ',
+    line1: 'चलती फिरती हुई आँखों से अज़ाँ देखी है,',
+    line2: 'मैंने जन्नत तो नहीं देखी है, माँ देखी है।'
   },
-  // 11. Normal / Memory & Time
   {
     id: 11,
-    category: 'normal',
-    line1: 'वक्त के साथ सब कुछ बदल जाता है मगर यादें हमेशा जिंदा रहती हैं,',
-    line2: 'दिल के पन्नों पर जो नाम छप जाए वो कभी धुंधला नहीं होता।'
+    poet: 'कैफ़ी आज़मी',
+    mood: 'छुपा दर्द',
+    line1: 'तुम इतना जो मुस्कुरा रहे हो,',
+    line2: 'क्या ग़म है जिसको छुपा रहे हो?'
   },
-  // 12. Sad & Regret
   {
     id: 12,
-    category: 'sad',
-    line1: 'उन्हें लगता है कि हम उनके बिना अब खुश नहीं रहते,',
-    line2: 'उन्हें क्या पता कि हमने अपने दर्द को ही अपनी मुस्कान बना लिया।'
+    poet: 'मीर तक़ी मीर',
+    mood: 'इश्क़ की शुरुआत',
+    line1: 'इब्तिदा-ए-इश्क़ है रोता है क्या,',
+    line2: 'आगे आगे देखिए होता है क्या।'
   },
-  // 13. Deep Love
   {
     id: 13,
-    category: 'love',
-    line1: 'तुम लाख छुपाओ मगर तुम्हारी आंखों में हमारा ही अक्स है,',
-    line2: 'मोहब्बत वो नहीं जो अल्फाजों में हो, ये तो खामोशी का एहसास है।'
+    poet: 'बशीर बद्र',
+    mood: 'जुदाई',
+    line1: 'कुछ तो मजबूरियाँ रही होंगी,',
+    line2: 'यूँ कोई बेवफ़ा नहीं होता।'
   },
-  // 14. Silent Grind
   {
     id: 14,
-    category: 'motivation',
-    line1: 'जिसने रुलाया था हमें कभी हमारी सादगी और मुफलिसी पर,',
-    line2: 'एक दिन वो भी तरसेंगे हमारा नाम गूगल पर सर्च करने को।'
-  },
-  // 15. Midnight Hustle
-  {
-    id: 15,
-    category: 'motivation',
-    line1: 'दिल टूटा तो नींद उड़ी, नींद उड़ी तो रातें जागीं,',
-    line2: 'और उन्हीं जागी रातों ने आज इंजीनियर का वजूद तराश दिया।'
-  },
-  // 16. Normal & Wisdom
-  {
-    id: 16,
-    category: 'normal',
-    line1: 'ना किसी से उम्मीद रखो और ना किसी से कोई गिला करो,',
-    line2: 'जिंदगी अपनी शर्तों पर जियो और अपने काम से दुनिया को हैरान करो।'
+    poet: 'साहिर लुधियानवी',
+    mood: 'ज़िंदगी',
+    line1: 'मैं पल दो पल का शायर हूँ,',
+    line2: 'पल दो पल मेरी कहानी है।'
   }
 ];
+
+const ENGLISH_POETRY_LIBRARY = [
+  {
+    line1: 'The heart can break and still keep time,',
+    line2: 'A quiet beat can outlast the hardest night.',
+  },
+  {
+    line1: 'Your laughter turns the ordinary gold,',
+    line2: 'A little light the evening gets to hold.',
+  },
+  {
+    line1: 'Some rooms remember voices after years,',
+    line2: 'And leave their silence softer than our fears.',
+  },
+  {
+    line1: 'The ones we lose still shape the roads we take,',
+    line2: 'Their kindness travels with us when we wake.',
+  },
+  {
+    line1: 'Let the tea grow cold; let honest stories stay,',
+    line2: 'A gentle word can warm the longest day.',
+  },
+  {
+    line1: 'Take one more step; let doubt fall far behind,',
+    line2: 'The road remembers every brave heart’s stride.',
+  },
+  {
+    line1: 'Your name arrives, and windows fill with spring,',
+    line2: 'The quiet heart remembers how to sing.',
+  },
+  {
+    line1: 'A small bright moment, sunlight on the floor,',
+    line2: 'Can make a weary heart ask life for more.',
+  },
+  {
+    line1: 'A friend can hear the words you never say,',
+    line2: 'Then bring a little laughter anyway.',
+  },
+  {
+    line1: 'However long the dark may choose to stay,',
+    line2: 'The morning keeps inventing its own way.',
+  },
+  {
+    line1: 'A mother’s voice can make the whole world small,',
+    line2: 'And turn a distant home into a call.',
+  },
+  {
+    line1: 'Be kind to who you are becoming still,',
+    line2: 'Self-love is quiet courage of the will.',
+  },
+  {
+    line1: 'The city sleeps beneath a silver moon,',
+    line2: 'Some hearts still keep a window lit till noon.',
+  },
+  {
+    line1: 'We leave, we learn, we find our way back home,',
+    line2: 'The bravest roads are those we walk alone.',
+  },
+];
+
+const getDailyShayariIndex = (date = new Date()) => {
+  const currentDate = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
+  const firstDayOfYear = Date.UTC(date.getFullYear(), 0, 1);
+  const dayOfYear = Math.floor((currentDate - firstDayOfYear) / 86400000);
+  return dayOfYear % SHAYARI_LIBRARY.length;
+};
+
+interface ShayariRotation {
+  order: number[];
+  position: number;
+}
+
+const shuffleShayariIndices = (excludedIndex?: number) => {
+  const indices = SHAYARI_LIBRARY
+    .map((_, index) => index)
+    .filter((index) => index !== excludedIndex);
+
+  for (let index = indices.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [indices[index], indices[swapIndex]] = [indices[swapIndex], indices[index]];
+  }
+
+  return indices;
+};
+
+const getNextShayariRotation = (rotation: ShayariRotation): ShayariRotation => {
+  if (rotation.position < rotation.order.length - 1) {
+    return { ...rotation, position: rotation.position + 1 };
+  }
+
+  const currentIndex = rotation.order[rotation.position];
+  const order = shuffleShayariIndices();
+  if (order.length > 1 && order[0] === currentIndex) {
+    [order[0], order[1]] = [order[1], order[0]];
+  }
+
+  return { order, position: 0 };
+};
 
 export interface WallpaperTheme {
   id: string;
@@ -249,14 +335,15 @@ export const FrontPageCover: React.FC<FrontPageCoverProps> = ({
 
 
 
-  // Rotating Hindi Shayari State with Daily Seed
-  const [shayariIndex, setShayariIndex] = useState<number>(() => {
-    const now = new Date();
-    const start = new Date(now.getFullYear(), 0, 0);
-    const diff = now.getTime() - start.getTime();
-    const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24));
-    return dayOfYear % SHAYARI_LIBRARY.length;
+  // Start with today's selection, then shuffle the remaining entries for this cycle.
+  const [shayariRotation, setShayariRotation] = useState<ShayariRotation>(() => {
+    const firstIndex = getDailyShayariIndex();
+    return {
+      order: [firstIndex, ...shuffleShayariIndices(firstIndex)],
+      position: 0,
+    };
   });
+  const shayariIndex = shayariRotation.order[shayariRotation.position] ?? 0;
 
   // Wallpaper Theme State with Automatic Broken Path Migration
   const [themes, setThemes] = useState<WallpaperTheme[]>(() => {
@@ -307,30 +394,34 @@ export const FrontPageCover: React.FC<FrontPageCoverProps> = ({
 
   const currentTheme = themes[activeThemeIndex] || WALLPAPER_THEMES[0];
   const currentShayari = SHAYARI_LIBRARY[shayariIndex] || SHAYARI_LIBRARY[0];
+  const currentEnglishPoetry = ENGLISH_POETRY_LIBRARY[shayariIndex] || ENGLISH_POETRY_LIBRARY[0];
 
   
 
 
 
-  // Auto-rotate Hindi Shayari every 5 minutes (300,000 ms)
+  // Automatically advance every 15 seconds without repeats within a shuffled cycle.
   useEffect(() => {
-    const shayariInterval = setInterval(() => {
-      setShayariIndex((prev) => (prev + 1) % SHAYARI_LIBRARY.length);
-    }, 5 * 60 * 1000);
+    const shayariInterval = window.setInterval(() => {
+      setShayariRotation(getNextShayariRotation);
+    }, 15_000);
 
-    return () => clearInterval(shayariInterval);
+    return () => window.clearInterval(shayariInterval);
   }, []);
 
   // Previous Shayari Handler (Circle Button)
   const handlePrevShayari = () => {
     soundManager.playClick();
-    setShayariIndex((prev) => (prev - 1 + SHAYARI_LIBRARY.length) % SHAYARI_LIBRARY.length);
+    setShayariRotation((current) => ({
+      ...current,
+      position: (current.position - 1 + current.order.length) % current.order.length,
+    }));
   };
 
   // Reload / Next Shayari Handler (Circle Button)
   const handleNextShayari = () => {
     soundManager.playClick();
-    setShayariIndex((prev) => (prev + 1) % SHAYARI_LIBRARY.length);
+    setShayariRotation(getNextShayariRotation);
   };
 
   const handleSelectTheme = (idx: number) => {
@@ -560,14 +651,30 @@ export const FrontPageCover: React.FC<FrontPageCoverProps> = ({
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -3 }}
                   transition={{ duration: 0.35, ease: 'easeOut' }}
-                  className="space-y-0.5"
+                  className="grid grid-cols-2 gap-2 text-right"
                 >
-                  <p className="text-xs sm:text-[13px] text-white/95 font-medium leading-relaxed drop-shadow-sm">
-                    {currentShayari.line1}
-                  </p>
-                  <p className="text-xs sm:text-[13px] text-white/95 font-medium leading-relaxed drop-shadow-sm">
-                    {currentShayari.line2}
-                  </p>
+                  <div>
+                    <p className="font-hindi-shayari text-[9px] sm:text-[10px] text-cyan-200/90 font-semibold">
+                      {currentShayari.mood} <span className="text-white/40">·</span> {currentShayari.poet}
+                    </p>
+                    <p className="text-[11px] sm:text-[12px] text-white/95 font-medium leading-relaxed drop-shadow-sm">
+                      {currentShayari.line1}
+                    </p>
+                    <p className="text-[11px] sm:text-[12px] text-white/95 font-medium leading-relaxed drop-shadow-sm">
+                      {currentShayari.line2}
+                    </p>
+                  </div>
+                  <div className="border-l border-white/10 pl-2 text-left">
+                    <p className="font-body text-[9px] sm:text-[10px] text-cyan-100/80 font-semibold">
+                      ORIGINAL ENGLISH · DAILY
+                    </p>
+                    <p lang="en" className="font-body text-[10px] sm:text-[11px] text-white/90 italic leading-relaxed">
+                      {currentEnglishPoetry.line1}
+                    </p>
+                    <p lang="en" className="font-body text-[10px] sm:text-[11px] text-white/90 italic leading-relaxed">
+                      {currentEnglishPoetry.line2}
+                    </p>
+                  </div>
                 </motion.div>
               </AnimatePresence>
             </div>
@@ -874,9 +981,16 @@ export const FrontPageCover: React.FC<FrontPageCoverProps> = ({
           </a>
 
           {/* 7. GMAIL / CONTACT */}
-          <a
-            href={`mailto:${PERSONAL_INFO.email}?subject=Collaboration%20Inquiry%20via%20Portfolio`}
-            onClick={() => soundManager.playClick()}
+          <button
+            type="button"
+            onClick={() => {
+              soundManager.playClick();
+              openGmailCompose({
+                to: PERSONAL_INFO.email,
+                subject: 'Collaboration Inquiry via Portfolio',
+                body: 'Hello Aditya,\n\nI came across your portfolio and would like to connect regarding a potential opportunity.\n\nPlease let me know a suitable time to connect.\n\nBest regards,\n[Your Name]',
+              });
+            }}
             className="group relative p-2.5 rounded-full hover:bg-white/10 text-slate-300 hover:text-white transition-all cursor-pointer"
             title={`Email: ${PERSONAL_INFO.email}`}
             aria-label="Email Aditya"
@@ -885,7 +999,7 @@ export const FrontPageCover: React.FC<FrontPageCoverProps> = ({
             <span className="pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2 px-2.5 py-1 rounded-md bg-black/90 text-[10px] font-mono text-cyan-300 whitespace-nowrap border border-cyan-500/40 opacity-0 group-hover:opacity-100 transition-opacity shadow-xl z-50">
               Email: {PERSONAL_INFO.email}
             </span>
-          </a>
+          </button>
         </nav>
       </footer>
     </div>

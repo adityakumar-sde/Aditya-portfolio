@@ -2,17 +2,22 @@
 @import "tailwindcss";
 
 :root {
-  --bg-deep: #060907;
-  --bg-graphite: #0b100d;
-  --bg-card: rgba(13, 16, 23, 0.75);
-  --bg-card-hover: rgba(20, 25, 36, 0.9);
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-accent: rgba(56, 189, 248, 0.4);
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --accent-cyan: #38bdf8;
-  --accent-glow: rgba(56, 189, 248, 0.15);
+  color-scheme: dark;
+  --bg-deep: #070b14;
+  --bg-graphite: #0c1320;
+  --bg-panel: rgba(12, 19, 32, 0.82);
+  --bg-panel-strong: rgba(15, 23, 42, 0.92);
+  --bg-card: rgba(15, 23, 42, 0.74);
+  --bg-card-hover: rgba(18, 29, 48, 0.88);
+  --border-subtle: rgba(148, 163, 184, 0.18);
+  --border-accent: rgba(103, 232, 249, 0.45);
+  --text-primary: #e5eef8;
+  --text-secondary: #a8b8d1;
+  --text-muted: #7f8ea8;
+  --accent-cyan: #67e8f9;
+  --accent-violet: #8b5cf6;
+  --accent-glow: rgba(103, 232, 249, 0.18);
+  --glow-violet: rgba(139, 92, 246, 0.18);
   --font-display: 'Syne', sans-serif;
   --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
@@ -24,7 +29,7 @@
 
 html {
   scroll-behavior: smooth;
-  background-color: var(--bg-deep);
+  background: var(--bg-deep);
   color: var(--text-primary);
   font-family: var(--font-body);
 }
@@ -33,24 +38,49 @@ body {
   overflow-x: hidden;
   min-height: 100vh;
   position: relative;
-  background-color: var(--bg-deep);
+  background:
+    radial-gradient(circle at top, rgba(103, 232, 249, 0.12), transparent 30%),
+    radial-gradient(circle at bottom right, rgba(139, 92, 246, 0.12), transparent 32%),
+    var(--bg-deep);
   color: var(--text-primary);
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(148, 163, 184, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.03) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: radial-gradient(circle at center, black 48%, transparent 100%);
+  z-index: 0;
+}
+
+#root {
+  position: relative;
+  z-index: 1;
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #090a0d;
+  background: rgba(7, 11, 20, 0.9);
 }
 ::-webkit-scrollbar-thumb {
-  background: #1e2430;
-  border-radius: 3px;
+  background: linear-gradient(180deg, rgba(103, 232, 249, 0.8), rgba(139, 92, 246, 0.7));
+  border-radius: 999px;
+  border: 2px solid rgba(7, 11, 20, 0.9);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #38bdf8;
+  background: linear-gradient(180deg, rgba(103, 232, 249, 1), rgba(139, 92, 246, 0.9));
 }
+
+html { scrollbar-color: rgba(103, 232, 249, 0.7) rgba(7, 11, 20, 0.9); }
 
 /* Typography Helpers */
 .font-display {
